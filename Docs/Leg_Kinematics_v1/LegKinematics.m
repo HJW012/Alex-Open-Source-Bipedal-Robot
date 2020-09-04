@@ -1,4 +1,4 @@
-%% Main
+%% Test
 close all;
 clear;
 clc;
@@ -19,14 +19,20 @@ T3 = 20;
 
 l = [l1, l2, l3, l4, l5, l6, l7, l8, l9 ,l10, T1, T2, T3];
 p0 = [0, 0];
-q = [-0.2543991918, 1.296151316, 2.253132798];
+q = [degtorad(201.722), degtorad(250.987), degtorad(25.884)];
 [p, angles] = fkine(l, p0, q)
 
-testPoint = [131.4531, -79.4527];
-testTau = 2.0001;
-[outQ, outP] = ikine(l, p0, testPoint, testTau)
+testPoint = [p{4, 1}, p{4, 2}];
+testTau = angles;
+[outQ, outP] = ikine(l, p0, testPoint, testTau);
+radtodeg(outQ)
+outP
+%% Simulation - Plots all points and connects them to show leg
+function simulate(p0, p)
+    
+end
 %% Forward Kinematics - Maybe just add all angles as an output
-function [p, angles] = fkine(l, p0, q)
+function [p, tau] = fkine(l, p0, q)
     p{1, 1} = p0(1) + l(1) * cos(q(1));
     p{1, 2} = p0(2) - l(1) * sin(q(1));
     p{2, 1} = p0(1) + l(2) * cos(q(2));
@@ -84,7 +90,6 @@ function [p, angles] = fkine(l, p0, q)
             tau = -(pi - abs(atan((p{4, 2} - p{8, 2}) / (p{4, 1} - p{8, 1}))));
         end
     end
-    angles = tau; %NEEDS WORK - not necessarily right
 end
 %% Inverse Kinematics
 function [q, p] = ikine(l, p0, p4, tau)
@@ -105,14 +110,22 @@ function [q, p] = ikine(l, p0, p4, tau)
     sigma = abs(atan((p4(2) - p0(2)) / (p4(1) - p0(1))));
     theta = 0;
     
-    if (p4(1) < p0(1) && p4(2) < p0(2))
-        theta = sigma - iota;
-        q(2) = pi - (sigma - iota);
-    elseif (p4(1) > p0(1) && p4(2) < p0(2))
-        theta = pi - (sigma + iota);
-        q(2) = sigma + iota;
+    if (p4(1) < p0(1))
+        if (p4(2) < p0(2))
+            theta = sigma - iota;
+            q(2) = pi - (sigma - iota);
+        else
+            theta = iota + sigma;
+            q(2) = pi + iota + sigma;
+        end
     else
-        
+        if (p4(2) < p0(2))
+            theta = pi - (sigma + iota);
+            q(2) = sigma + iota;
+        else
+            theta = pi - (iota - sigma);
+            q(2) = iota - sigma;
+        end
     end
     
     q(1) = q(2) - (gamma(1) + gamma(2)); %or pi - (theta + gamma)
@@ -121,8 +134,8 @@ function [q, p] = ikine(l, p0, p4, tau)
     p{1, 2} = p0(2) - l(1) * sin(q(1));
     p{2, 1} = p0(1) + l(2) * cos(q(2));
     p{2, 2} = p0(2) - l(2) * sin(q(2));
-    p{3, 1} = p0(1) + lr2 * cos(pi - (theta + gamma(1)));
-    p{3, 2} = p0(2) - lr2 * sin(pi - (theta + gamma(1)));
+    p{3, 1} = p0(1) + lr2 * cos(q(1) + gamma(2));
+    p{3, 2} = p0(2) - lr2 * sin(q(1) + gamma(2));
     
     lr3 = distance(p{2, 1}, p{8, 1}, p{2, 2}, p{8, 2});
     w(1) = angleCosineRule((l(4) + l(5)), lr3, l(9));
@@ -171,8 +184,3 @@ end
 function dist = distance(x1, x2, y1, y2)
     dist = abs(sqrt((y1 - y2)^2 + (x1 - x2)^2));
 end
-
-
-
-
-
