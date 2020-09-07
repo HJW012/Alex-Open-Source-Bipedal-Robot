@@ -158,6 +158,17 @@ add_executable(controller src/controller.cpp)
 # all install targets should use catkin DESTINATION variables
 # See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
 
+catkin_python_setup()
+
+catkin_install_python(PROGRAMS
+  nodes/alex_teleop_key
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(DIRECTORY launch
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
+
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
 # catkin_install_python(PROGRAMS
