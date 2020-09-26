@@ -35,9 +35,9 @@ if os.name == 'nt':
 else:
   import tty, termios
 
-MAX_ANG_VEL = 2500
+MAX_ANG_VEL = 30
 
-ANG_VEL_STEP_SIZE = 100
+ANG_VEL_STEP_SIZE = 5
 
 msg = """
 Control Connected Motor (via CAN)!

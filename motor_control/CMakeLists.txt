@@ -127,8 +127,13 @@ include_directories(
 # )
 
 add_executable(controller2 src/controller2.cpp)
+add_executable(cansender src/cansender.cpp)
 
 target_link_libraries(controller2
+   ${catkin_LIBRARIES}
+ )
+
+target_link_libraries(cansender
    ${catkin_LIBRARIES}
  )
 
