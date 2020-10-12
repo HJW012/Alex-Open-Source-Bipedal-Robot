@@ -14,8 +14,10 @@ l = [l1, l2, l3, l4, l5];
 p0 = [0, 0];
 p4 = [-13.988, -498.771];
 
-[q, p] = ikine(l, p0, p4);
+[q, ikP] = ikine(l, p0, p4);
 rad2deg(q)
+
+fkP = fkine(l, p0, q)
 %% Inverse Kinematics - Main Mechanism (Points 0 - 4)
 function [q, p] = ikine(l, p0, p4)
     lr1 = distance(p0(1), p0(2), p4(1), p4(2));
@@ -44,6 +46,27 @@ function [q, p] = ikine(l, p0, p4)
     p(2, 2) = p0(2) - l(2) * sin(q(2));
     p(3, 1) = p0(1) + lr2 * cos(q(1) + gamma2);
     p(3, 2) = p0(2) - lr2 * sin(q(1) + gamma2);
+end
+%% Forward Kinematics - Main Mechanism (Points 0 - 4)
+function p = fkine(l, p0, q)
+    p(1, 1) = p0(1) + l(1) * cos(q(1));
+    p(1, 2) = p0(2) - l(1) * sin(q(1));
+    p(2, 1) = p0(1) + l(2) * cos(q(2));
+    p(2, 2) = p0(2) - l(2) * sin(q(2));
+    
+    lr1 = distance(p(1, 1), p(1, 2), p(2, 1), p(2, 2));
+    alpha1 = angleCosineRule(l(1), l(2), lr1);
+    alpha2 = angleCosineRule(l(3), lr1, l(4));
+    gamma1 = q(2) - q(1); % or angleCosineRule(lr1, l(2), l(1))
+    gamma2 = angleCosineRule(lr1, l(4), l(3));
+    beta1 = angleCosineRule(l(2), lr1, l(1)); % or pi - (gamma1 + alpha1)
+    beta2 = angleCosineRule(l(4), lr1, l(3)); % or pi - (gamma2 + alpah2)
+    alpha = alpha1 + alpha2;
+    
+    p(3, 1) = p(2, 1) + l(4) * cos(q(2) - (pi - alpha)); % = p(1, 1) + l(3) * cos(q(1) + (pi - beta))
+    p(3, 2) = p(2, 2) - l(4) * sin(q(2) - (pi - alpha)); % = p(1, 2) - l(3) * sin(q(1) + (pi - beta))
+    p(4, 1) = p(2, 1) + (l(4) + l(5)) * cos(q(2) - (pi - alpha));
+    p(4, 2) = p(2, 2) - (l(4) + l(5)) * sin(q(2) - (pi - alpha));
 end
 %% Angle Cosine Rule
 function A = angleCosineRule(a, b, c)
