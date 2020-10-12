@@ -3,11 +3,11 @@ close all;
 clear;
 clc;
 
-l1 = 75;
-l2 = 110;
-l3 = 110;
-l4 = 75;
-l5 = 30;
+l1 = 100;
+l2 = 300;
+l3 = 303.5;
+l4 = 100;
+l5 = 180;
 l6 = 22.563;
 l7 = 110;
 l8 = 105;
@@ -19,7 +19,7 @@ T3 = 20;
 
 l = [l1, l2, l3, l4, l5, l6, l7, l8, l9 ,l10, T1, T2, T3];
 p0 = [10, 0];
-q = [degtorad(67.752), degtorad(183.447), degtorad(226.837)];
+q = [degtorad(57.506), degtorad(121.1), degtorad(226.837)];
 [p, angles] = fkine(l, p0, q)
 
 testPoint = [p(4, 1), p(4, 2)];
