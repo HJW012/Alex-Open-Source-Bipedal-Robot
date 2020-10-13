@@ -151,6 +151,7 @@ include_directories(
 # )
 
 add_executable(keyboard_teleop_test_node src/alex_keyboard_teleop_test.cpp)
+add_dependencies(keyboard_teleop_test_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(keyboard_teleop_test_node
   ${catkin_LIBRARIES}
 )
