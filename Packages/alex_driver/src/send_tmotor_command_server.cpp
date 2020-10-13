@@ -2,6 +2,8 @@
 #include "std_msgs/String.h"
 #include "alex_msgs/MotorParamOut.h"
 #include "alex_driver/send_tmotor_command.h"
+#include <socketcan_bridge/topic_to_socketcan.h>
+#include <socketcan_interface/string.h>
 
 #include <sstream>
 #include <stdio.h>
@@ -34,6 +36,7 @@ float v_in = 0.0f;
 float kp_in = 100.0f;
 float kd_in =  1.0f;
 float t_in = 0.0f;
+ros::Publisher can_topic_;
 
 unsigned int float_to_uint(float x, float x_min, float x_max, int bits) {
    float span = x_max - x_min;
@@ -120,18 +123,23 @@ bool  sendTMotorCommand(alex_driver::send_tmotor_command::Request &req, alex_dri
       break;
     }
   }
-  struct can_frame frame;
+  can_msgs::Frame frame;
 
-  frame.can_id = 0x01;
-  frame.can_dlc = 8;
-  if (write(s, &frame, sizeof(struct can_frame)) != sizeof(struct can_frame)) {
+  frame.id = 0x01;
+  frame.dlc = 8;
+  for (int i = 0; i < 8; i++) {
+    frame.data[i] = buf[i];
+  }
+  /*if (write(s, &frame, sizeof(struct can_frame)) != sizeof(struct can_frame)) {
     for (int i = 0; i < 8; i++) {
       frame.data[i] = buf[i];
     }
     res.success = true;
   } else {
     res.success = false;
-  }
+  }*/
+
+  can_topic_.publish(frame);
 
   return true;
 }
@@ -139,6 +147,7 @@ bool  sendTMotorCommand(alex_driver::send_tmotor_command::Request &req, alex_dri
 int main (int argc, char **argv) {
   ros::init(argc, argv, "alex_send_tmotor_command_node");
   ros::NodeHandle n;
+  can_topic_ = n.advertise<can_msgs::Frame>("/sent_messages", 10);
 
   ros::ServiceServer service = n.advertiseService("send_tmotor_command", sendTMotorCommand);
   ROS_INFO("Send TMotor Command Node");

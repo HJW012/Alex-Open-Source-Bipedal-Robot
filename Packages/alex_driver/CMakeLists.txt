@@ -11,6 +11,8 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   alex_msgs
+  socketcan_bridge
+  socketcan_interface
   message_generation
 )
 
@@ -105,7 +107,7 @@ add_service_files(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  CATKIN_DEPENDS roscpp std_msgs alex_msgs
+  CATKIN_DEPENDS roscpp std_msgs alex_msgs socketcan_bridge socketcan_interface
   DEPENDS system_lib
 )
 

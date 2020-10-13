@@ -52,6 +52,8 @@
   <build_depend>roscpp</build_depend>
   <build_depend>std_msgs</build_depend>
   <build_depend>alex_msgs</build_depend>
+  <build_depend>socketcan_bridge</build_depend>
+  <build_depend>socketcan_interface</build_depend>
   <build_depend>message_generation</build_depend>
   <build_export_depend>roscpp</build_export_depend>
   <build_export_depend>std_msgs</build_export_depend>
@@ -59,6 +61,8 @@
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>alex_msgs</exec_depend>
   <exec_depend>message_generation</exec_depend>
+  <exec_depend>socketcan_bridge</exec_depend>
+  <exec_depend>socketcan_interface</exec_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
