@@ -56,8 +56,8 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## Generate services in the 'srv' folder
 add_service_files(
-  FILES
-  send_tmotor_command.srv
+   FILES
+   send_tmotor_command.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -68,11 +68,11 @@ add_service_files(
 # )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-  DEPENDENCIES
-  std_msgs
-  alex_msgs
-)
+ generate_messages(
+   DEPENDENCIES
+   std_msgs 
+   alex_msgs
+ )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -149,6 +149,7 @@ include_directories(
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
+
 add_executable(send_tmotor_command_node src/send_tmotor_command_server.cpp)
 add_executable(receive_tmotor_reply_node src/receive_tmotor_reply_node.cpp)
 

@@ -146,6 +146,9 @@ include_directories(
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
+# target_link_libraries(${PROJECT_NAME}_node
+#   ${catkin_LIBRARIES}
+# )
 
 add_executable(keyboard_teleop_test_node src/alex_keyboard_teleop_test.cpp)
 target_link_libraries(keyboard_teleop_test_node

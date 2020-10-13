@@ -129,7 +129,7 @@ int main(int argc, char** argv)
   alex_driver::send_tmotor_command srv;
 
   // Init cmd_vel publisher
-  ros::Publisher pub = nh.advertise<alex_msgs::MotorParamOut>("alex/motorParamOut", 1);
+  //ros::Publisher pub = nh.advertise<alex_msgs::MotorParamOut>("alex/motorParamOut", 1);
 
   // Create MotorParamOut message
   alex_msgs::MotorParamOut motorParamOut;
@@ -273,7 +273,7 @@ int main(int argc, char** argv)
       }
 
       // Publish it and resolve any remaining callbacks
-      pub.publish(motorParamOut);
+      //pub.publish(motorParamOut);
       ros::spinOnce();
     }
   }

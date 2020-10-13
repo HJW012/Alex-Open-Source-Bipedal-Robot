@@ -13,8 +13,6 @@ find_package(catkin REQUIRED COMPONENTS
   socketcan_bridge
 )
 
-
-
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -106,7 +104,6 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES alex_bringup
   CATKIN_DEPENDS roscpp alex_teleop socketcan_bridge
   DEPENDS system_lib
 )
@@ -193,7 +190,6 @@ include_directories(
 #   # myfile2
 #   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 # )
-
 
 install(DIRECTORY launch/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
