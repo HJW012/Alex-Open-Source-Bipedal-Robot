@@ -1,0 +1,4 @@
+<launch>
+  <node name="socketcan_bridge_node" pkg="socketcan_bridge" type="socketcan_bridge_node" output="screen" />
+  <node name="keyboard_teleop_test_node" pkg="alex_teleop" type="keyboard_teleop_test_node" output="screen" />
+</launch>
