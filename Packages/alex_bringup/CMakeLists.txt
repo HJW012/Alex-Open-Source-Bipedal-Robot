@@ -142,11 +142,11 @@ include_directories(
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-# add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+#add_executable(alex_send_tmotor_command_node src/send_tmotor_command_server.cpp)
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(${PROJECT_NAME}_node
-#   ${catkin_LIBRARIES}
+#target_link_libraries(alex_send_tmotor_command_node
+ #  ${catkin_LIBRARIES}
 # )
 
 #############
