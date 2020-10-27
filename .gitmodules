@@ -1,0 +1,18 @@
+[submodule "ros_canopen"]
+	path = ros_canopen
+	url = https://github.com/ros-industrial/ros_canopen
+[submodule "orientus_driver"]
+	path = orientus_driver
+	url = https://github.com/RIVeR-Lab/orientus_driver
+[submodule "advanced_navigation_driver"]
+	path = advanced_navigation_driver
+	url = https://github.com/ros-drivers/advanced_navigation_driver
+[submodule "Packages/ros_canopen"]
+	path = Packages/ros_canopen
+	url = https://github.com/ros-industrial/ros_canopen
+[submodule "Packages/orientus_driver"]
+	path = Packages/orientus_driver
+	url = https://github.com/RIVeR-Lab/orientus_driver
+[submodule "Packages/advanced_navigation_driver"]
+	path = Packages/advanced_navigation_driver
+	url = https://github.com/ros-drivers/advanced_navigation_driver
