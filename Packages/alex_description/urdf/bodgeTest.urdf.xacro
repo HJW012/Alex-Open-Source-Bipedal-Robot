@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<robot name="ALEX" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:property name="l1" value="0.1" />
+  <xacro:property name="l2" value="0.3" />
+  <xacro:property name="l3" value="0.309" />
+  <xacro:property name="l4" value="0.115" />
+  <xacro:property name="l5" value="0.19" />
+  <xacro:property name="l6" value="0.02735" />
+  <xacro:property name="l7" value="0.0432" />
+  <xacro:property name="l8_a" value="0.1493" />
+  <xacro:property name="l8_b" value="0.155795" />
+  <xacro:property name="l9" value="0.055" />
+  <xacro:property name="l10" value="0.04025" />
+  <xacro:property name="l11" value="0.07475" />
+
+
+  <xacro:property name="theta1" value="0.7853981625" />
+
+  <material name="red">
+    <color rgba="1 0 0 1"/>
+  </material>
+
+  <material name="green">
+    <color rgba="0 1 0 1"/>
+  </material>
+
+  <material name="blue">
+    <color rgba="0 0 1 1"/>
+  </material>
+
+  <material name="yellow">
+    <color rgba="1 1 0 1"/>
+  </material>
+
+  <material name="silver">
+    <color rgba="0.73 0.73 0.73 1"/>
+  </material>
+
+  <material name="black">
+    <color rgba="0 0 0 1"/>
+  </material>
+
+  <material name="white">
+    <color rgba="1 1 1 1"/>
+  </material>
+
+  <link name="base_link">
+    <visual>
+      <material name="yellow"/>
+    </visual>
+  </link>
+
+  <link name="link1">
+    <visual>
+      <geometry>
+        <cylinder length="${l1}" radius="0.003"/>
+      </geometry>
+      <origin rpy="0 ${pi/2} 0" xyz="${l1/2} 0 0"/>
+      <material name="blue"/>
+    </visual>
+  </link>
+  <joint name="base_to_link1" type="continuous">
+    <parent link="base_link"/>
+    <child link="link1"/>
+    <axis rpy="0 0 0" xyz="0 0 1"/>
+    <origin rpy="0 0 ${pi/4}" xyz="0 0 0"/>
+  </joint>
+
+  <link name="link2">
+    <visual>
+      <geometry>
+        <cylinder length="${l2}" radius="0.003"/>
+      </geometry>
+      <origin rpy="0 ${pi/2} 0" xyz="${l2/2} 0 0"/>
+      <material name="red"/>
+    </visual>
+  </link>
+  <joint name="base_to_link2" type="continuous">
+    <parent link="base_link"/>
+    <child link="link2"/>
+    <axis rpy="0 0 0" xyz="0 0 1"/>
+    <origin rpy="0 0 ${3 * pi/4}" xyz="0 0 0"/>
+  </joint>
+
+
+
+</robot>

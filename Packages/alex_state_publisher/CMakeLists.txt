@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(alex_bringup)
+project(alex_state_publisher)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -7,13 +7,21 @@ project(alex_bringup)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
+
+find_package(orocos_kdl REQUIRED)
 find_package(catkin REQUIRED COMPONENTS
+  kdl_parser
+  rosconsole
   roscpp
-  alex_teleop
-  alex_description
-  alex_state_publisher
-  socketcan_bridge
+  rostime
+  sensor_msgs
+  tf
+  tf2_kdl
+  tf2_ros
 )
+find_package(Eigen3 REQUIRED)
+
+find_package(urdfdom_headers REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -72,7 +80,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate added messages and services with any dependencies listed here
 # generate_messages(
 #   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
+#   sensor_msgs
 # )
 
 ################################################
@@ -105,9 +113,9 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
+  LIBRARIES ${PROJECT_NAME}_solver joint_state_listener
   INCLUDE_DIRS include
-  CATKIN_DEPENDS roscpp alex_teleop socketcan_bridge
-  DEPENDS system_lib
+  DEPENDS kdl_parser orocos_kdl roscpp rosconsole rostime sensor_msgs tf2_ros tf2_kdl urdfdom_headers
 )
 
 ###########
@@ -116,15 +124,15 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-include_directories(
-# include
-  ${catkin_INCLUDE_DIRS}
-)
+
+include_directories(SYSTEM ${EIGEN3_INCLUDE_DIRS})
+include_directories(include ${catkin_INCLUDE_DIRS} ${orocos_kdl_INCLUDE_DIRS} ${urdfdom_headers_INCLUDE_DIRS})
+link_directories(${orocos_kdl_LIBRARY_DIRS})
 
 ## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/alex_bringup.cpp
-# )
+add_library(${PROJECT_NAME}_solver
+  src/alex_state_publisher.cpp
+)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -134,7 +142,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/alex_bringup_node.cpp)
+# add_executable(${PROJECT_NAME}_node src/alex_state_publisher_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -144,12 +152,16 @@ include_directories(
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-#add_executable(alex_send_tmotor_command_node src/send_tmotor_command_server.cpp)
+# add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-#target_link_libraries(alex_send_tmotor_command_node
- #  ${catkin_LIBRARIES}
-# )
+target_link_libraries(${PROJECT_NAME}_solver ${catkin_LIBRARIES} ${orocos_kdl_LIBRARIES})
+
+add_library(joint_state_listener src/joint_state_listener.cpp)
+target_link_libraries(joint_state_listener ${PROJECT_NAME}_solver ${orocos_kdl_LIBRARIES})
+
+add_executable(${PROJECT_NAME} src/alex_state_publisher_node.cpp)
+target_link_libraries(${PROJECT_NAME} ${PROJECT_NAME}_solver joint_state_listener ${orocos_kdl_LIBRARIES})
 
 #############
 ## Install ##
@@ -193,16 +205,12 @@ include_directories(
 #   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 # )
 
-install(DIRECTORY launch/
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
-  PATTERN ".svn" EXCLUDE)
-
 #############
 ## Testing ##
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_alex_bringup.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_alex_state_publisher.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
