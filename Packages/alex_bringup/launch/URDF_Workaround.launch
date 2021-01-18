@@ -1,0 +1,13 @@
+<launch>
+
+  <arg name="model" default="$(find alex_description)/urdf/JointWorkaround.urdf.xacro"/>
+  <arg name="gui" default="true" />
+  <arg name="rvizconfig" default="$(find alex_description)/rviz/urdf.rviz" />
+  <param name="robot_description" command="$(find xacro)/xacro $(arg model)" />
+
+
+  <node if="$(arg gui)" name="joint_state_publisher" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" />
+  <node unless="$(arg gui)" name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+  <node name="alex_state_publisher" pkg="alex_state_publisher" type="alex_state_publisher" output="screen"/>
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
+</launch>
