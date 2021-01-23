@@ -115,5 +115,37 @@
     <origin rpy="0 0 0" xyz="${l5} 0 0"/>
   </joint>
 
+  <link name="link1">
+    <visual>
+      <geometry>
+        <cylinder length="${l1}" radius="0.003"/>
+      </geometry>
+      <origin rpy="0 ${pi/2} 0" xyz="${l1/2} 0 0"/>
+      <material name="red"/>
+    </visual>
+  </link>
+  <joint name="base_to_link1" type="continuous">
+    <parent link="base_link"/>
+    <child link="link1"/>
+    <axis rpy="0 0 0" xyz="0 0 1"/>
+    <origin rpy="0 0 ${pi/4}" xyz="0 0 0"/>
+  </joint>
+
+  <link name="link3">
+    <visual>
+      <geometry>
+        <cylinder length="${l3}" radius="0.003"/>
+      </geometry>
+      <origin rpy="0 ${pi/2} 0" xyz="${l3/2} 0 0"/>
+      <material name="red"/>
+    </visual>
+  </link>
+  <joint name="link1_to_link3" type="continuous">
+    <parent link="link1"/>
+    <child link="link3"/>
+    <axis rpy="0 0 0" xyz="0 0 1"/>
+    <origin rpy="0 0 ${pi/2}" xyz="${l1} 0 0"/>
+  </joint>
+
 
 </robot>
