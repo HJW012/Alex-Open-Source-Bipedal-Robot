@@ -1,6 +1,13 @@
 #ifndef ALEX_STATE_PUBLISHER_H
 #define ALEX_STATE_PUBLISHER_H
 
+// Need to change these and URDF is limb lengths change
+#define l1 0.1f
+#define l2 0.3f
+#define l3 0.309f
+#define l4 0.115f
+#define l5 0.19f
+
 #include <map>
 #include <string>
 
@@ -11,6 +18,11 @@
 #include <kdl/frames.hpp>
 #include <kdl/segment.hpp>
 #include <kdl/tree.hpp>
+#include <geometry_msgs/Point.h>
+#include <std_msgs/Float64.h>
+#include <tf/transform_datatypes.h>
+#include <math.h>
+#include <geometry_msgs/TransformStamped.h>
 
 namespace alex_state_publisher {
 
@@ -46,6 +58,12 @@ public:
    */
   virtual void publishTransforms(const std::map<std::string, double>& joint_positions, const ros::Time& time);
   virtual void publishFixedTransforms(bool use_tf_static = false);
+
+  double distance(double, double, double, double);
+  double angleCosineRule(double, double, double);
+  double sideCosineRule(double, double, double);
+  bool fkine(std::map<int, geometry_msgs::TransformStamped>&);
+
 
 protected:
   virtual void addChildren(const KDL::SegmentMap::const_iterator segment);
