@@ -23,6 +23,9 @@
 #include <tf/transform_datatypes.h>
 #include <math.h>
 #include <geometry_msgs/TransformStamped.h>
+#include <tf/LinearMath/Scalar.h>
+#include <tf/LinearMath/Quaternion.h>
+#include <geometry_msgs/Quaternion.h>
 
 namespace alex_state_publisher {
 
@@ -62,6 +65,11 @@ public:
   double distance(double, double, double, double);
   double angleCosineRule(double, double, double);
   double sideCosineRule(double, double, double);
+  geometry_msgs::Quaternion setRPY(tfScalar&, tfScalar&, tfScalar&);
+  void getRPY(tf::Quaternion, double&, double&, double&);
+  void getRPY(geometry_msgs::Quaternion, double&, double&, double&);
+  tf::Quaternion quatConversion(geometry_msgs::Quaternion);
+  geometry_msgs::Quaternion quatConversion(tf::Quaternion);
   bool fkine(std::map<int, geometry_msgs::TransformStamped>&);
 
 

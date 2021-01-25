@@ -18,6 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   tf2_kdl
   tf2_ros
+  alex_kinematics
 )
 find_package(Eigen3 REQUIRED)
 

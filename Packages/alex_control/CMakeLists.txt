@@ -10,6 +10,9 @@ project(alex_control)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
+  alex_driver
+  tf2_msgs
+  alex_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -67,10 +70,12 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs
-# )
+ generate_messages(
+   DEPENDENCIES
+   std_msgs
+   tf2_msgs
+   alex_msgs
+ )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -148,6 +153,13 @@ include_directories(
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
+
+add_executable(alex_tf_listener_node src/tf_listener_node.cpp)
+add_dependencies(alex_tf_listener_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+target_link_libraries(alex_tf_listener_node
+  ${catkin_LIBRARIES}
+)
 
 #############
 ## Install ##

@@ -99,7 +99,40 @@ void AlexStatePublisher::publishTransforms(const std::map<std::string, double>& 
 */
   // loop over all joints
 
-  bool i = true;
+  std::map<int, geometry_msgs::TransformStamped> pointMap;
+  int pointIndex = 0;
+  int pointCount = 0;
+  for (std::map<std::string, double>::const_iterator jnt = joint_positions.begin(); jnt != joint_positions.end(); jnt++) {
+    std::map<std::string, SegmentPair>::const_iterator seg = segments_.find(jnt->first);
+    if (seg != segments_.end()) {
+      geometry_msgs::TransformStamped tf_transform = tf2::kdlToTransform(seg->second.segment.pose(jnt->second));
+      tf_transform.header.stamp = time;
+      tf_transform.header.frame_id = stripSlash(seg->second.root);
+      tf_transform.child_frame_id = stripSlash(seg->second.tip);
+      pointMap[pointIndex] = tf_transform;
+      pointIndex++;
+      pointCount = pointIndex;
+      // tf_transform.transform.translation.x = 1;
+      // tf_transform.transform.translation.y = 1;
+      // tf_transform.transform.translation.z = 0;
+
+
+    }
+    else {
+      ROS_WARN_THROTTLE(10, "Joint state with name: \"%s\" was received but not found in URDF", jnt->first.c_str());
+    }
+  }
+
+  fkine(pointMap);
+
+  for (int i = 0; i < pointCount; i++) {
+    tf_transforms.push_back(pointMap[i]);
+  }
+  tf_broadcaster_.sendTransform(tf_transforms);
+
+  // Frames are all frames except base_link in the order shown in rviz (currently 1,2,3,4,5,null)
+  /*
+  int i = 0;
   for (std::map<std::string, double>::const_iterator jnt = joint_positions.begin(); jnt != joint_positions.end(); jnt++) {
     std::map<std::string, SegmentPair>::const_iterator seg = segments_.find(jnt->first);
     if (seg != segments_.end()) {
@@ -111,14 +144,15 @@ void AlexStatePublisher::publishTransforms(const std::map<std::string, double>& 
       // tf_transform.transform.translation.y = 1;
       // tf_transform.transform.translation.z = 0;
 
+
       tf_transforms.push_back(tf_transform);
     }
     else {
       ROS_WARN_THROTTLE(10, "Joint state with name: \"%s\" was received but not found in URDF", jnt->first.c_str());
     }
-    i = false;
   }
   tf_broadcaster_.sendTransform(tf_transforms);
+  */
 }
 
 // publish fixed transforms
@@ -162,25 +196,25 @@ double AlexStatePublisher::sideCosineRule(double b, double c, double A) {
   return a;
 }
 
-bool AlexStatePublisher::fkine(std::map<int, geometry_msgs::TransformStamped>& pointMap) {
+bool AlexStatePublisher::fkine(std::map<int, geometry_msgs::TransformStamped>& pointMap) { //ALL OF THIS NEEDS TO BE OPTIMISED
   int j = 0;
   for (std::map<int, geometry_msgs::TransformStamped>::const_iterator i = pointMap.begin(); i != pointMap.end(); i++) {
     pointMap[j].transform.translation.z = 0;
     j++;
   }
-  // Points at the end of links 1 and 2 are calculated through KDL/URDF - rest calculated using kinematics
-  tf::Quaternion q(pointMap[1].transform.rotation.x, pointMap[1].transform.rotation.y, pointMap[1].transform.rotation.z, pointMap[1].transform.rotation.w);
-  tf::Matrix3x3 m(q);
+
   double roll, pitch, yaw;
-  m.getRPY(roll, pitch, yaw);
+  getRPY(pointMap[0].transform.rotation, roll, pitch, yaw);
   double q1 = yaw;
+  double localX1 = l1 * cos(q1);
+  double localY1 = -l1 * sin(q1);
 
-  tf::Quaternion qq(pointMap[2].transform.rotation.x, pointMap[2].transform.rotation.y, pointMap[2].transform.rotation.z, pointMap[2].transform.rotation.w);
-  tf::Matrix3x3 m2(qq);
-  m2.getRPY(roll, pitch, yaw);
+  getRPY(pointMap[1].transform.rotation, roll, pitch, yaw);
   double q2 = yaw;
+  double localX2 = l2 * cos(q2);
+  double localY2 = -l2 * sin(q2);
 
-  double lr1 = distance(pointMap[1].transform.translation.x, pointMap[1].transform.translation.y, pointMap[2].transform.translation.x, pointMap[2].transform.translation.y);
+  double lr1 = distance(localX1, localY1, localX2, localY2);
   double alpha1 = angleCosineRule(l1, l2, lr1);
   double alpha2 = angleCosineRule(l3, lr1, l4);
   double gamma1 = angleCosineRule(lr1, l2, l1);
@@ -188,16 +222,53 @@ bool AlexStatePublisher::fkine(std::map<int, geometry_msgs::TransformStamped>& p
   double beta1 = angleCosineRule(l2, lr1, l1);
   double beta2 = angleCosineRule(l4, lr1, l3);
   double alpha = alpha1 + alpha2;
+  double beta = beta1 + beta2;
+  double q3 = sqrt((M_PI - beta)/M_PI);
+  double q4 = -sqrt((M_PI - alpha)/M_PI);
 
-  pointMap[3].transform.translation.x = pointMap[2].transform.translation.x + l4 * cos(q2 - (M_PI - alpha));
-  pointMap[3].transform.translation.y = pointMap[2].transform.translation.y - l4 * sin(q1 - (M_PI - alpha));
-  pointMap[4].transform.translation.x = pointMap[2].transform.translation.x + (l4 + l5) * cos(q2 - (M_PI - alpha));
-  pointMap[4].transform.translation.x = pointMap[2].transform.translation.y - (l4 + l5) * sin(q2 - (M_PI - alpha));
-  double theta = q2 - (M_PI - alpha);
+  yaw = (M_PI - beta);
+  pitch = 0;
+  roll = 0;
 
-  return false;
+  pointMap[2].transform.rotation = setRPY(roll, pitch, yaw);
+  yaw = (alpha - M_PI);
+
+
+  pointMap[3].transform.rotation = setRPY(roll, pitch, yaw);
+  tfScalar zero = 0;
+  pointMap[4].transform.rotation = setRPY(zero, zero, zero);
+
+  return false; //CHECK FOR NANs
 }
 
+tf::Quaternion AlexStatePublisher::quatConversion(geometry_msgs::Quaternion q) {
+  tf::Quaternion Q(q.x, q.y, q.z, q.w);
+  return Q;
+}
 
+geometry_msgs::Quaternion AlexStatePublisher::quatConversion(tf::Quaternion q) {
+  geometry_msgs::Quaternion Q;
+  Q.x = q.x();
+  Q.y = q.y();
+  Q.z = q.z();
+  Q.w = q.w();
+  return Q;
+}
+
+geometry_msgs::Quaternion AlexStatePublisher::setRPY(tfScalar& roll, tfScalar& pitch, tfScalar& yaw) {
+  tf::Quaternion q;
+  q.setRPY(roll, pitch, yaw);
+  return quatConversion(q);
+}
+
+void AlexStatePublisher::getRPY(tf::Quaternion q, double& roll, double& pitch, double& yaw) {
+  tf::Matrix3x3 m(q);
+  m.getRPY(roll, pitch, yaw);
+}
+
+void AlexStatePublisher::getRPY(geometry_msgs::Quaternion q, double& roll, double& pitch, double& yaw) {
+  tf::Quaternion Q = quatConversion(q);
+  getRPY(Q, roll, pitch, yaw);
+}
 
 }

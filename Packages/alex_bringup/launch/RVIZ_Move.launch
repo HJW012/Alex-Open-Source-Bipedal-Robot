@@ -1,0 +1,4 @@
+<launch>
+  <include file="$(find alex_bringup)/launch/RVIZ_NoMove.launch" />
+  
+</launch>
