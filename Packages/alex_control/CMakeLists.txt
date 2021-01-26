@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   alex_driver
   tf2_msgs
   alex_msgs
+  can_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -75,6 +76,7 @@ find_package(catkin REQUIRED COMPONENTS
    std_msgs
    tf2_msgs
    alex_msgs
+   can_msgs
  )
 
 ################################################

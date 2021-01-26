@@ -59,13 +59,16 @@ void TFCallback(const tf2_msgs::TFMessage::ConstPtr& msg) {
   alex_msgs::MotorParamOut m0;
   double null1, null2, null3;
   getRPY(msg->transforms[0].transform.rotation, null1, null2, null3);
-  m0.pose = double(null3);
+  m0.id = 0;
+  m0.pose = double(null3) - M_PI/4;
   m0.kd = 200;
   m0.kp = 4;
 
   alex_msgs::MotorParamOut m1;
   getRPY(msg->transforms[1].transform.rotation, null1, null2, null3);
-  m1.pose = double(null3);
+  m1.id = 1;
+  m1.pose = double(null3) - 3*M_PI/4;
+  std::cout << m1.pose << std::endl;
   m1.kd = 200;
   m1.kp = 4;
 

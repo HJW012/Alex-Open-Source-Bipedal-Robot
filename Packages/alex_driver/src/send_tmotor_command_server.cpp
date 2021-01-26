@@ -19,8 +19,8 @@
 #include <linux/can.h>
 #include <linux/can/raw.h>
 
-#define P_MIN -95.5f
-#define P_MAX 95.5f
+#define P_MIN -12.5f
+#define P_MAX 12.5f
 #define V_MIN -30.0f
 #define V_MAX 30.0f
 #define KP_MIN 0.0f
@@ -33,10 +33,11 @@
 int s;
 float p_in = 0.0f;
 float v_in = 0.0f;
-float kp_in = 100.0f;
+float kp_in = 300.0f;
 float kd_in =  1.0f;
 float t_in = 0.0f;
 ros::Publisher can_topic_;
+
 
 unsigned int float_to_uint(float x, float x_min, float x_max, int bits) {
    float span = x_max - x_min;
@@ -124,8 +125,12 @@ bool  sendTMotorCommand(alex_driver::send_tmotor_command::Request &req, alex_dri
     }
   }
   can_msgs::Frame frame;
+  if (req.motorParamOut.id == 0) {
+    frame.id = 0x000;
+  } else if (req.motorParamOut.id == 1) {
+    frame.id = 0x001;
+  }
 
-  frame.id = 0x01;
   frame.dlc = 8;
   for (int i = 0; i < 8; i++) {
     frame.data[i] = buf[i];
@@ -147,8 +152,7 @@ bool  sendTMotorCommand(alex_driver::send_tmotor_command::Request &req, alex_dri
 int main (int argc, char **argv) {
   ros::init(argc, argv, "alex_send_tmotor_command_node");
   ros::NodeHandle n;
-  can_topic_ = n.advertise<can_msgs::Frame>("/sent_messages", 10);
-
+  can_topic_ = n.advertise<can_msgs::Frame>("sent_messages", 10);
   ros::ServiceServer service = n.advertiseService("send_tmotor_command", sendTMotorCommand);
   ROS_INFO("Send TMotor Command Node");
   ros::spin();

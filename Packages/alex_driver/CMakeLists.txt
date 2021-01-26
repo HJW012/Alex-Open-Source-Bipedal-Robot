@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   socketcan_bridge
   socketcan_interface
   message_generation
+  can_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -72,8 +73,9 @@ add_service_files(
 ## Generate added messages and services with any dependencies listed here
  generate_messages(
    DEPENDENCIES
-   std_msgs 
+   std_msgs
    alex_msgs
+   can_msgs
  )
 
 ################################################
