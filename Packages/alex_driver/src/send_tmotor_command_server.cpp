@@ -125,10 +125,10 @@ bool  sendTMotorCommand(alex_driver::send_tmotor_command::Request &req, alex_dri
     }
   }
   can_msgs::Frame frame;
-  if (req.motorParamOut.id == 0) {
-    frame.id = 0x000;
-  } else if (req.motorParamOut.id == 1) {
-    frame.id = 0x001;
+  if (req.motorParamOut.id == 4) {
+    frame.id = 0x004;
+  } else if (req.motorParamOut.id == 5) {
+    frame.id = 0x005;
   }
 
   frame.dlc = 8;
