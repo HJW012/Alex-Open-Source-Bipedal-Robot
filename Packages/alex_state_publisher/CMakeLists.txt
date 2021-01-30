@@ -26,6 +26,18 @@ find_package(urdfdom_headers REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
+find_package(catkin REQUIRED COMPONENTS
+  alex_kinematics
+  kdl_parser
+  orocos_kdl
+  roscpp
+  rosconsole
+  rostime
+  sensor_msgs
+  tf2_ros
+  tf2_kdl
+  urdfdom_headers
+)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -114,7 +126,7 @@ find_package(urdfdom_headers REQUIRED)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  LIBRARIES ${PROJECT_NAME}_solver joint_state_listener
+  LIBRARIES ${PROJECT_NAME}_solver alex_joint_state_listener
   INCLUDE_DIRS include
   DEPENDS kdl_parser orocos_kdl roscpp rosconsole rostime sensor_msgs tf2_ros tf2_kdl urdfdom_headers
 )
@@ -158,11 +170,11 @@ add_library(${PROJECT_NAME}_solver
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}_solver ${catkin_LIBRARIES} ${orocos_kdl_LIBRARIES})
 
-add_library(joint_state_listener src/joint_state_listener.cpp)
-target_link_libraries(joint_state_listener ${PROJECT_NAME}_solver ${orocos_kdl_LIBRARIES})
+add_library(alex_joint_state_listener src/alex_joint_state_listener.cpp)
+target_link_libraries(alex_joint_state_listener ${PROJECT_NAME}_solver ${orocos_kdl_LIBRARIES})
 
 add_executable(${PROJECT_NAME} src/alex_state_publisher_node.cpp)
-target_link_libraries(${PROJECT_NAME} ${PROJECT_NAME}_solver joint_state_listener ${orocos_kdl_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${PROJECT_NAME}_solver alex_joint_state_listener ${orocos_kdl_LIBRARIES})
 
 #############
 ## Install ##

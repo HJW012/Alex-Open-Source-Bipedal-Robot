@@ -8,7 +8,7 @@
 #include <kdl_parser/kdl_parser.hpp>
 
 #include "alex_state_publisher/alex_state_publisher.h"
-#include "alex_state_publisher/joint_state_listener.h"
+#include "alex_state_publisher/alex_joint_state_listener.h"
 
 using namespace alex_state_publisher;
 

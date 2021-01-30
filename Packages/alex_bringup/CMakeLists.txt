@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   alex_description
   alex_state_publisher
   socketcan_bridge
+  robot_state_publisher
 )
 
 ## System dependencies are found with CMake's conventions
@@ -106,7 +107,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  CATKIN_DEPENDS roscpp alex_teleop socketcan_bridge
+  CATKIN_DEPENDS roscpp alex_teleop socketcan_bridge robot_state_publisher
   DEPENDS system_lib
 )
 

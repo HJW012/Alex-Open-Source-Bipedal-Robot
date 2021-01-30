@@ -14,10 +14,15 @@ find_package(catkin REQUIRED COMPONENTS
   tf2_msgs
   alex_msgs
   can_msgs
+  
 )
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
+find_package(catkin REQUIRED COMPONENTS
+      roscpp
+      tf2_ros
+      alex_driver
+      )
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures

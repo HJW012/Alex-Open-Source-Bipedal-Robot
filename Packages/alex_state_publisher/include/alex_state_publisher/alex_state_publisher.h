@@ -26,6 +26,11 @@
 #include <tf/LinearMath/Scalar.h>
 #include <tf/LinearMath/Quaternion.h>
 #include <geometry_msgs/Quaternion.h>
+#include "alex_kinematics/alex_leg_fkine.h"
+#include "alex_kinematics/alex_leg_ikine.h"
+
+ros::ServiceClient fkineClient;
+ros::ServiceClient ikineClient;
 
 namespace alex_state_publisher {
 

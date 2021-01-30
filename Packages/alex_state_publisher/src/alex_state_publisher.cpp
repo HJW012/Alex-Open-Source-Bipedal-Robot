@@ -99,6 +99,7 @@ void AlexStatePublisher::publishTransforms(const std::map<std::string, double>& 
 */
   // loop over all joints
 
+/*
   std::map<int, geometry_msgs::TransformStamped> pointMap;
   int pointIndex = 0;
   int pointCount = 0;
@@ -109,6 +110,8 @@ void AlexStatePublisher::publishTransforms(const std::map<std::string, double>& 
       tf_transform.header.stamp = time;
       tf_transform.header.frame_id = stripSlash(seg->second.root);
       tf_transform.child_frame_id = stripSlash(seg->second.tip);
+
+
       pointMap[pointIndex] = tf_transform;
       pointIndex++;
       pointCount = pointIndex;
@@ -129,6 +132,35 @@ void AlexStatePublisher::publishTransforms(const std::map<std::string, double>& 
     tf_transforms.push_back(pointMap[i]);
   }
   tf_broadcaster_.sendTransform(tf_transforms);
+*/
+  std::vector<geometry_msgs::TransformStamped> transforms_in;
+
+  for (std::map<std::string, double>::const_iterator jnt = joint_positions.begin(); jnt != joint_positions.end(); jnt++) {
+    std::map<std::string, SegmentPair>::const_iterator seg = segments_.find(jnt->first);
+    if (seg != segments_.end()) {
+      geometry_msgs::TransformStamped tf_transform = tf2::kdlToTransform(seg->second.segment.pose(jnt->second));
+      tf_transform.header.stamp = time;
+      tf_transform.header.frame_id = stripSlash(seg->second.root);
+      tf_transform.child_frame_id = stripSlash(seg->second.tip);
+      if (tf_transform.header.frame_id == "base_link" && tf_transform.child_frame_id == "link1") {
+        transforms_in.push_back(tf_transform);
+      } else if (tf_transform.header.frame_id == "base_link" && tf_transform.child_frame_id == "link2") {
+        transforms_in.push_back(tf_transform);
+      }
+
+    }
+    else {
+      ROS_WARN_THROTTLE(10, "Joint state with name: \"%s\" was received but not found in URDF", jnt->first.c_str());
+    }
+  }
+
+  alex_kinematics::alex_leg_fkine fkineSrv;
+  fkineSrv.request.jointAngles = transforms_in;
+  fkineClient.call(fkineSrv);
+  tf_transforms = fkineSrv.response.transforms;
+
+  tf_broadcaster_.sendTransform(tf_transforms);
+
 
   // Frames are all frames except base_link in the order shown in rviz (currently 1,2,3,4,5,null)
   /*
