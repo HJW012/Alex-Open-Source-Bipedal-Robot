@@ -13,12 +13,13 @@
   <xacro:property name="shin_length_a" value="0.309" />
   <xacro:property name="shin_length_b" value="0.305" />
   <xacro:property name="shin_connection_length" value="0.115" />
-  <xacro:property name="ankle_a_offset" value="0" />
-  <xacro:property name="ankle_length_b" value="0" />
-  <xacro:property name="ankle_length_c" value="0" />
-  <xacro:property name="ankle_length_d" value="0" />
-  <xacro:property name="foot_length_a" value="0" />
-  <xacro:property name="foot_length_b" value="0" />
+  <xacro:property name="ankle_a_offset" value="0.07475" />
+  <xacro:property name="ankle_length_b" value="0.02735" />
+  <xacro:property name="ankle_length_c" value="0.0432" />
+  <xacro:property name="ankle_length_d1" value="0.1493" />
+  <xacro:property name="ankle_length_d2" value="0.155795" />
+  <xacro:property name="foot_length_a" value="0.055" />
+  <xacro:property name="foot_length_b" value="0.055" />
 
   <xacro:property name="l1" value="0.1" />
   <xacro:property name="l2" value="0.3" />
@@ -152,7 +153,7 @@
       <geometry>
         <cylinder length="0" radius="0.003"/>
       </geometry>
-      <origin rpy="0 ${pi/2} 0" xyz="0 0 0"/>
+      <origin rpy="0 ${pi/2} 0" xyz="${shin_connection_length/2} 0 0"/>
       <material name="blue"/>
     </visual>
   </link>
@@ -162,6 +163,104 @@
     <axis rpy="0 0 0" xyz="0 0 1"/>
     <origin rpy="0 0 0" xyz="${shin_connection_length} 0 0"/>
   </joint>
+
+  <link name="ankle_link_a">
+    <visual>
+      <geometry>
+        <cylinder length="${ankle_length_b}" radius="0.003"/>
+      </geometry>
+      <origin rpy="0 ${pi/2} 0" xyz="${ankle_length_b/2} 0 0"/>
+      <material name="blue"/>
+    </visual>
+  </link>
+  <joint name="shin_link_b_to_ankle_link_a" type="continuous">
+    <parent link="shin_link_b"/>
+    <child link="ankle_link_a"/>
+    <axis rpy="0 0 0" xyz="0 0 1"/>
+    <origin rpy="0 0 ${pi/2}" xyz="${ankle_a_offset} 0 0"/>
+  </joint>
+
+  <link name="ankle_link_b">
+    <visual>
+      <geometry>
+        <cylinder length="${ankle_length_c}" radius="0.003"/>
+      </geometry>
+      <origin rpy="0 ${pi/2} 0" xyz="${ankle_length_c/2} 0 0"/>
+      <material name="blue"/>
+    </visual>
+  </link>
+  <joint name="ankle_link_a_to_ankle_link_b" type="continuous">
+    <parent link="ankle_link_a"/>
+    <child link="ankle_link_b"/>
+    <axis rpy="0 0 0" xyz="0 0 1"/>
+    <origin rpy="0 0 ${-pi/8}" xyz="${ankle_length_b} 0 0"/>
+  </joint>
+
+  <link name="ankle_link_c_1">
+    <visual>
+      <geometry>
+        <cylinder length="${ankle_length_d1}" radius="0.003"/>
+      </geometry>
+      <origin rpy="0 ${pi/2} 0" xyz="${ankle_length_d1/2} 0 0"/>
+      <material name="blue"/>
+    </visual>
+  </link>
+  <joint name="ankle_link_b_to_ankle_link_c_1" type="continuous">
+    <parent link="ankle_link_b"/>
+    <child link="ankle_link_c_1"/>
+    <axis rpy="0 0 0" xyz="0 0 1"/>
+    <origin rpy="0 0 ${-pi/4}" xyz="${ankle_length_c} 0 0"/>
+  </joint>
+
+  <link name="ankle_link_c_2">
+    <visual>
+      <geometry>
+        <cylinder length="${ankle_length_d2}" radius="0.003"/>
+      </geometry>
+      <origin rpy="0 ${pi/2} 0" xyz="${ankle_length_d2/2} 0 0"/>
+      <material name="blue"/>
+    </visual>
+  </link>
+  <joint name="ankle_link_c_1_to_ankle_link_c_2" type="prismatic">
+    <limit lower="${-ankle_length_d1/2}" upper="${ankle_length_d1/2}" effort="1" velocity="1"/>
+    <parent link="ankle_link_c_1"/>
+    <child link="ankle_link_c_2"/>
+    <axis rpy="0 0 0" xyz="1 0 0"/>
+    <origin rpy="0 0 0" xyz="${ankle_length_d1} 0 0"/>
+  </joint>
+
+  <link name="foot_link_a">
+    <visual>
+      <geometry>
+        <cylinder length="${foot_length_a}" radius="0.003"/>
+      </geometry>
+      <origin rpy="0 ${pi/2} 0" xyz="${foot_length_a/2} 0 0"/>
+      <material name="blue"/>
+    </visual>
+  </link>
+  <joint name="ankle_link_c_2_to_foot_link_a" type="continuous">
+    <parent link="ankle_link_c_2"/>
+    <child link="foot_link_a"/>
+    <axis rpy="0 0 0" xyz="0 0 1"/>
+    <origin rpy="0 0 ${-pi/2}" xyz="${ankle_length_d2} 0 0"/>
+  </joint>
+
+  <link name="foot_link_b">
+    <visual>
+      <geometry>
+        <cylinder length="${foot_length_b}" radius="0.003"/>
+      </geometry>
+      <origin rpy="0 ${pi/2} 0" xyz="${foot_length_b/2} 0 0"/>
+      <material name="blue"/>
+    </visual>
+  </link>
+  <joint name="foot_link_a_to_foot_link_b" type="continuous">
+    <parent link="foot_link_a"/>
+    <child link="foot_link_b"/>
+    <axis rpy="0 0 0" xyz="0 0 1"/>
+    <origin rpy="0 0 0" xyz="${foot_length_a} 0 0"/>
+  </joint>
+
 
 
 </robot>
