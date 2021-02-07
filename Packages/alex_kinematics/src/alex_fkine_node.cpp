@@ -23,7 +23,7 @@
 #include <tf/LinearMath/Scalar.h>
 #include <tf/LinearMath/Quaternion.h>
 #include <geometry_msgs/Quaternion.h>
-#include "alex_kinematics/alex_leg_fkine.h"
+#include "alex_kinematics/alex_fkine.h"
 //#include "alex_kinematics/alex_fkine_node.h"
 
 double distance(double x1, double y1, double x2, double y2) {
@@ -72,11 +72,11 @@ void getRPY(geometry_msgs::Quaternion q, double& roll, double& pitch, double& ya
 }
 
 
-bool fkine(alex_kinematics::alex_leg_fkine::Request &req, alex_kinematics::alex_leg_fkine::Response &res) {
+bool fkine(alex_kinematics::alex_fkine::Request &req, alex_kinematics::alex_fkine::Response &res) {
   geometry_msgs::TransformStamped tf1;
   geometry_msgs::TransformStamped tf2;
   std::vector<geometry_msgs::TransformStamped> tf_transforms;
-  for (auto tf : req.jointAngles) {
+  for (auto tf : req.transforms) {
     if (tf.header.frame_id == "base_link" && tf.child_frame_id == "link1") {
       tf1 = tf;
     } else if (tf.header.frame_id == "base_link" && tf.child_frame_id == "link2") {
@@ -153,10 +153,10 @@ bool fkine(alex_kinematics::alex_leg_fkine::Request &req, alex_kinematics::alex_
 // }
 
 int main(int argc, char **argv) {
-  ros::init(argc, argv, "alex_leg_fkine_node");
+  ros::init(argc, argv, "alex_fkine_node");
   ros::NodeHandle n;
 
-  ros::ServiceServer service = n.advertiseService("alex_leg_fkine_node", fkine);
+  ros::ServiceServer service = n.advertiseService("alex_fkine_node", fkine);
   ROS_INFO("Alex Leg Fkine Node");
   ros::spin();
 

@@ -7,6 +7,13 @@
 #define l3 0.309f
 #define l4 0.115f
 #define l5 0.19f
+#define l6 0.02735f
+#define l7 0.0432f
+#define l8a 0.1493f
+#define l8b 0.155795f
+#define l9 0.055f
+#define l10 0.04025f
+#define l11 0.07475f
 
 #include <map>
 #include <string>
@@ -25,9 +32,11 @@
 #include <geometry_msgs/TransformStamped.h>
 #include <tf/LinearMath/Scalar.h>
 #include <tf/LinearMath/Quaternion.h>
+#include <tf/transform_datatypes.h>
+#include <tf/tf.h>
 #include <geometry_msgs/Quaternion.h>
-#include "alex_kinematics/alex_leg_fkine.h"
-#include "alex_kinematics/alex_leg_ikine.h"
+#include "alex_kinematics/alex_fkine.h"
+#include "alex_kinematics/alex_ikine.h"
 
 ros::ServiceClient fkineClient;
 ros::ServiceClient ikineClient;
@@ -75,7 +84,7 @@ public:
   void getRPY(geometry_msgs::Quaternion, double&, double&, double&);
   tf::Quaternion quatConversion(geometry_msgs::Quaternion);
   geometry_msgs::Quaternion quatConversion(tf::Quaternion);
-  bool fkine(std::map<int, geometry_msgs::TransformStamped>&);
+  bool fkine(std::map<std::string, geometry_msgs::TransformStamped>&);
 
 
 protected:

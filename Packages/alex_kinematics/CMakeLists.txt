@@ -57,8 +57,8 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate services in the 'srv' folder
 add_service_files(
    FILES
-   alex_leg_fkine.srv
-   alex_leg_ikine.srv
+   alex_fkine.srv
+   alex_ikine.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -151,16 +151,16 @@ include_directories(
 #   ${catkin_LIBRARIES}
 # )
 
-add_executable(alex_leg_fkine_node src/alex_leg_fkine_node.cpp)
-add_executable(alex_leg_ikine_node src/alex_leg_ikine_node.cpp)
+add_executable(alex_fkine_node src/alex_fkine_node.cpp)
+add_executable(alex_ikine_node src/alex_ikine_node.cpp)
 
-add_dependencies(alex_leg_fkine_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(alex_leg_ikine_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(alex_fkine_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(alex_ikine_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-target_link_libraries(alex_leg_fkine_node
+target_link_libraries(alex_fkine_node
   ${catkin_LIBRARIES}
 )
-target_link_libraries(alex_leg_ikine_node
+target_link_libraries(alex_ikine_node
   ${catkin_LIBRARIES}
 )
 

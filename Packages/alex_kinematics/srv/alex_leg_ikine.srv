@@ -1,4 +1,0 @@
-
-geometry_msgs/TransformStamped transform
----
-geometry_msgs/TransformStamped[] jointAngles

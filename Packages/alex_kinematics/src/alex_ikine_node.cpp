@@ -17,10 +17,10 @@
 #include <tf/LinearMath/Scalar.h>
 #include <tf/LinearMath/Quaternion.h>
 #include <geometry_msgs/Quaternion.h>
-#include "alex_kinematics/alex_leg_ikine.h"
+#include "alex_kinematics/alex_ikine.h"
 //#include "alex_kinematics/alex_fkine_node.h"
 
-bool ikine(alex_kinematics::alex_leg_ikine::Request &req, alex_kinematics::alex_leg_ikine::Response &res) {
+bool ikine(alex_kinematics::alex_ikine::Request &req, alex_kinematics::alex_ikine::Response &res) {
 
 }
 
@@ -29,11 +29,11 @@ bool ikine(alex_kinematics::alex_leg_ikine::Request &req, alex_kinematics::alex_
 // }
 
 int main(int argc, char **argv) {
-  ros::init(argc, argv, "alex_leg_ikine_node");
+  ros::init(argc, argv, "alex_ikine_node");
   ros::NodeHandle n;
 
-  ros::ServiceServer service = n.advertiseService("alex_leg_ikine_node", ikine);
-  ROS_INFO("Alex Leg Ikine Node");
+  ros::ServiceServer service = n.advertiseService("alex_ikine_node", ikine);
+  ROS_INFO("Alex Ikine Node");
   ros::spin();
 
   return 0;

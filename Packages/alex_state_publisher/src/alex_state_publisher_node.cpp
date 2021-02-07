@@ -12,8 +12,8 @@
 
 #include "alex_state_publisher/alex_state_publisher.h"
 #include "alex_state_publisher/alex_joint_state_listener.h"
-#include "alex_kinematics/alex_leg_fkine.h"
-#include "alex_kinematics/alex_leg_ikine.h"
+#include "alex_kinematics/alex_fkine.h"
+#include "alex_kinematics/alex_ikine.h"
 
 // ----------------------------------
 // ----- MAIN -----------------------
@@ -45,8 +45,8 @@ int main(int argc, char** argv)
   }
 
   alex_state_publisher::JointStateListener state_publisher(tree, mimic, model);
-  fkineClient = node.serviceClient<alex_kinematics::alex_leg_fkine>("alex_leg_fkine_node");
-  ikineClient = node.serviceClient<alex_kinematics::alex_leg_ikine>("alex_leg_ikine_node");
+  fkineClient = node.serviceClient<alex_kinematics::alex_fkine>("alex_fkine_node");
+  ikineClient = node.serviceClient<alex_kinematics::alex_ikine>("alex_ikine_node");
 
   ros::spin();
 
