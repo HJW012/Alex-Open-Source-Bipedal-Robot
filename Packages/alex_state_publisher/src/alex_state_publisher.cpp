@@ -232,16 +232,16 @@ double AlexStatePublisher::sideCosineRule(double b, double c, double A) {
   return a;
 }
 
-bool AlexStatePublisher::fkine(std::map<std::string, geometry_msgs::TransformStamped>& transforms) { //ALL OF THIS NEEDS TO BE OPTIMISED
+bool AlexStatePublisher::legFkine(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>& transforms){
   // 1.0 LEFT LEG
   // 1.1 Knee/Shin Mechanism
   double roll, pitch, yaw;
-  getRPY(transforms["left_knee_link_b"].transform.rotation, roll, pitch, yaw);
+  getRPY(transforms[prefix + "_knee_link_b"].transform.rotation, roll, pitch, yaw);
   double q2 = yaw;
   double localX2 = l2 * cos(q2);
   double localY2 = -l2 * sin(q2);
 
-  getRPY(transforms["left_knee_link_a"].transform.rotation, roll, pitch, yaw);
+  getRPY(transforms[prefix + "_knee_link_a"].transform.rotation, roll, pitch, yaw);
   double q1 = yaw + q2;
   double localX1 = l1 * cos(q1);
   double localY1 = -l1 * sin(q1);
@@ -263,13 +263,13 @@ bool AlexStatePublisher::fkine(std::map<std::string, geometry_msgs::TransformSta
   pitch = 0;
   roll = 0;
 
-  transforms["left_shin_link_a"].transform.rotation = setRPY(roll, pitch, yaw);
+  transforms[prefix + "_shin_link_a"].transform.rotation = setRPY(roll, pitch, yaw);
   yaw = (alpha - M_PI);
 
 
-  transforms["left_shin_link_b"].transform.rotation = setRPY(roll, pitch, yaw);
-  tfScalar zero = 0;
-  transforms["left_shin_link_connection"].transform.rotation = setRPY(zero, zero, zero);
+  transforms[prefix + "_shin_link_b"].transform.rotation = setRPY(roll, pitch, yaw);
+  tf2Scalar zero = 0;
+  transforms[prefix + "_shin_link_connection"].transform.rotation = setRPY(zero, zero, zero);
 
   // 1.2 Shin/Ankle Mechanism
   geometry_msgs::TransformStamped left_foot_offset, ankle_b_offset, ankle_c_offset;
@@ -281,13 +281,13 @@ bool AlexStatePublisher::fkine(std::map<std::string, geometry_msgs::TransformSta
   ankle_b_offset.transform.translation.x = 0;
   ankle_b_offset.transform.translation.y = 0;
   ankle_b_offset.transform.translation.x += l11;
-  getRPY(transforms["left_ankle_link_a"].transform.rotation, roll, pitch, yaw);
+  getRPY(transforms[prefix + "_ankle_link_a"].transform.rotation, roll, pitch, yaw);
   ankle_b_offset.transform.translation.x += l6 * cos(yaw);
   ankle_b_offset.transform.translation.y -= l6 * sin(yaw);
 
   ankle_c_offset = ankle_b_offset;
   double yaw2;
-  getRPY(transforms["left_ankle_link_b"].transform.rotation, roll, pitch, yaw2);
+  getRPY(transforms[prefix + "_ankle_link_b"].transform.rotation, roll, pitch, yaw2);
   ankle_c_offset.transform.translation.x += l7 * cos(yaw + yaw2);
   ankle_c_offset.transform.translation.y -= l7 * sin(yaw + yaw2);
 
@@ -295,7 +295,7 @@ bool AlexStatePublisher::fkine(std::map<std::string, geometry_msgs::TransformSta
   double lr2 = distance(left_foot_offset.transform.translation.x, left_foot_offset.transform.translation.y, ankle_c_offset.transform.translation.x, ankle_c_offset.transform.translation.y);
   alpha1 = angleCosineRule(l10 + l5, l6, lr1);
   alpha2 = angleCosineRule(lr2, l7, lr1);
-  beta1 = angleCosineRule(l9, (transforms["left_foot_link_a"].transform.translation.x + transforms["left_ankle_link_c_2"].transform.translation.x), lr2);
+  beta1 = angleCosineRule(l9, (transforms[prefix + "_foot_link_a"].transform.translation.x + transforms[prefix + "_ankle_link_c_2"].transform.translation.x), lr2);
   beta2 = angleCosineRule(lr1, l7, lr2);
 
   roll = 0;
@@ -310,15 +310,19 @@ bool AlexStatePublisher::fkine(std::map<std::string, geometry_msgs::TransformSta
     yaw = -(M_PI - (beta1 - beta2));
 
   }
-  transforms["left_ankle_link_c_1"].transform.rotation = setRPY(roll, pitch, yaw);
+  transforms[prefix + "_ankle_link_c_1"].transform.rotation = setRPY(roll, pitch, yaw);
 
-  double omega = angleCosineRule(lr2, (transforms["left_foot_link_a"].transform.translation.x + transforms["left_ankle_link_c_2"].transform.translation.x), l9);
+  double omega = angleCosineRule(lr2, (transforms[prefix + "_foot_link_a"].transform.translation.x + transforms[prefix + "_ankle_link_c_2"].transform.translation.x), l9);
   yaw = -(M_PI - omega);
-  transforms["left_foot_link_a"].transform.rotation = setRPY(roll, pitch, yaw);
+  transforms[prefix + "_foot_link_a"].transform.rotation = setRPY(roll, pitch, yaw);
 
+  return false;
+}
 
+bool AlexStatePublisher::fkine(std::map<std::string, geometry_msgs::TransformStamped>& transforms) { //ALL OF THIS NEEDS TO BE OPTIMISED
+  legFkine("left", transforms);
+  legFkine("right", transforms);
 
-  return false; //CHECK FOR NANs
 }
 
 // void lookupTransform(const std::string& target_frame, const std::string& source_frame,
@@ -401,7 +405,7 @@ end*/
 //
 //
 //   pointMap[3].transform.rotation = setRPY(roll, pitch, yaw);
-//   tfScalar zero = 0;
+//   tf2Scalar zero = 0;
 //   pointMap[4].transform.rotation = setRPY(zero, zero, zero);
 //
 //   return false; //CHECK FOR NANs
@@ -421,7 +425,7 @@ geometry_msgs::Quaternion AlexStatePublisher::quatConversion(tf::Quaternion q) {
   return Q;
 }
 
-geometry_msgs::Quaternion AlexStatePublisher::setRPY(tfScalar& roll, tfScalar& pitch, tfScalar& yaw) {
+geometry_msgs::Quaternion AlexStatePublisher::setRPY(tf2Scalar& roll, tf2Scalar& pitch, tf2Scalar& yaw) {
   tf::Quaternion q;
   q.setRPY(roll, pitch, yaw);
   return quatConversion(q);

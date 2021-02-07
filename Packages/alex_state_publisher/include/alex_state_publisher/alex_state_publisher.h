@@ -27,12 +27,12 @@
 #include <kdl/tree.hpp>
 #include <geometry_msgs/Point.h>
 #include <std_msgs/Float64.h>
-#include <tf/transform_datatypes.h>
+#include <tf2/transform_datatypes.h>
 #include <math.h>
 #include <geometry_msgs/TransformStamped.h>
-#include <tf/LinearMath/Scalar.h>
-#include <tf/LinearMath/Quaternion.h>
-#include <tf/transform_datatypes.h>
+#include <tf2/LinearMath/Scalar.h>
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2/transform_datatypes.h>
 #include <tf/tf.h>
 #include <geometry_msgs/Quaternion.h>
 #include "alex_kinematics/alex_fkine.h"
@@ -79,12 +79,14 @@ public:
   double distance(double, double, double, double);
   double angleCosineRule(double, double, double);
   double sideCosineRule(double, double, double);
-  geometry_msgs::Quaternion setRPY(tfScalar&, tfScalar&, tfScalar&);
+  geometry_msgs::Quaternion setRPY(tf2Scalar&, tf2Scalar&, tf2Scalar&);
   void getRPY(tf::Quaternion, double&, double&, double&);
   void getRPY(geometry_msgs::Quaternion, double&, double&, double&);
   tf::Quaternion quatConversion(geometry_msgs::Quaternion);
   geometry_msgs::Quaternion quatConversion(tf::Quaternion);
   bool fkine(std::map<std::string, geometry_msgs::TransformStamped>&);
+  bool legFkine(std::string, std::map<std::string, geometry_msgs::TransformStamped>&);
+
 
 
 protected:
