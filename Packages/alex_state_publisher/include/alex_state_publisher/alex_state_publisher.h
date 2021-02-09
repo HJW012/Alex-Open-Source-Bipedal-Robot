@@ -34,6 +34,7 @@
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2/transform_datatypes.h>
 #include <tf/tf.h>
+#include <tf2/LinearMath/Matrix3x3.h>
 #include <geometry_msgs/Quaternion.h>
 #include "alex_kinematics/alex_fkine.h"
 #include "alex_kinematics/alex_ikine.h"
@@ -80,10 +81,10 @@ public:
   double angleCosineRule(double, double, double);
   double sideCosineRule(double, double, double);
   geometry_msgs::Quaternion setRPY(tf2Scalar&, tf2Scalar&, tf2Scalar&);
-  void getRPY(tf::Quaternion, double&, double&, double&);
+  void getRPY(tf2::Quaternion, double&, double&, double&);
   void getRPY(geometry_msgs::Quaternion, double&, double&, double&);
-  tf::Quaternion quatConversion(geometry_msgs::Quaternion);
-  geometry_msgs::Quaternion quatConversion(tf::Quaternion);
+  tf2::Quaternion quatConversion(geometry_msgs::Quaternion);
+  geometry_msgs::Quaternion quatConversion(tf2::Quaternion);
   bool fkine(std::map<std::string, geometry_msgs::TransformStamped>&);
   bool legFkine(std::string, std::map<std::string, geometry_msgs::TransformStamped>&);
 

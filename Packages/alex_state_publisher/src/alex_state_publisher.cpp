@@ -411,12 +411,12 @@ end*/
 //   return false; //CHECK FOR NANs
 // }
 
-tf::Quaternion AlexStatePublisher::quatConversion(geometry_msgs::Quaternion q) {
-  tf::Quaternion Q(q.x, q.y, q.z, q.w);
+tf2::Quaternion AlexStatePublisher::quatConversion(geometry_msgs::Quaternion q) {
+  tf2::Quaternion Q(q.x, q.y, q.z, q.w);
   return Q;
 }
 
-geometry_msgs::Quaternion AlexStatePublisher::quatConversion(tf::Quaternion q) {
+geometry_msgs::Quaternion AlexStatePublisher::quatConversion(tf2::Quaternion q) {
   geometry_msgs::Quaternion Q;
   Q.x = q.x();
   Q.y = q.y();
@@ -426,18 +426,18 @@ geometry_msgs::Quaternion AlexStatePublisher::quatConversion(tf::Quaternion q) {
 }
 
 geometry_msgs::Quaternion AlexStatePublisher::setRPY(tf2Scalar& roll, tf2Scalar& pitch, tf2Scalar& yaw) {
-  tf::Quaternion q;
+  tf2::Quaternion q;
   q.setRPY(roll, pitch, yaw);
   return quatConversion(q);
 }
 
-void AlexStatePublisher::getRPY(tf::Quaternion q, double& roll, double& pitch, double& yaw) {
-  tf::Matrix3x3 m(q);
+void AlexStatePublisher::getRPY(tf2::Quaternion q, double& roll, double& pitch, double& yaw) {
+  tf2::Matrix3x3 m(q);
   m.getRPY(roll, pitch, yaw);
 }
 
 void AlexStatePublisher::getRPY(geometry_msgs::Quaternion q, double& roll, double& pitch, double& yaw) {
-  tf::Quaternion Q = quatConversion(q);
+  tf2::Quaternion Q = quatConversion(q);
   getRPY(Q, roll, pitch, yaw);
 }
 
