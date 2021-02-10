@@ -259,9 +259,6 @@
 
 
   <link name="base_link">
-    <visual>
-      <material name="yellow"/>
-    </visual>
   </link>
   <xacro:leg prefix="right" reflect="1" />
   <xacro:leg prefix="left" reflect="-1" />

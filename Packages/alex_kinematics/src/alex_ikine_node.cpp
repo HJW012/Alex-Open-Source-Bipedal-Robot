@@ -42,7 +42,8 @@ void getRPY(tf2::Quaternion, double&, double&, double&);
 void getRPY(geometry_msgs::Quaternion, double&, double&, double&);
 tf2::Quaternion quatConversion(geometry_msgs::Quaternion);
 geometry_msgs::Quaternion quatConversion(tf2::Quaternion);
-bool AlexStatePublisher::legFkine(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>& transforms);
+bool legIkineNoHip(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>&);
+
 
 bool ikine(alex_kinematics::alex_ikine::Request &req, alex_kinematics::alex_ikine::Response &res) {
   std::map<std::string, geometry_msgs::TransformStamped> transforms;
@@ -53,9 +54,9 @@ bool ikine(alex_kinematics::alex_ikine::Request &req, alex_kinematics::alex_ikin
   legIkineNoHip("right", transforms);
 }
 
-bool AlexStatePublisher::legIkineNoHip(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>& transforms) {
+bool legIkineNoHip(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>& transforms) {
   // Perhaps the entered transform will be in world coordinates relative to hip or knee joint or even base link - only 2 or 4 transforms should be input
-  double lr1 = ditance(transforms[prefix + "_foot_b"].transform.translation.x, transforms[prefix + "_foot_b"].transform.translation.y, transforms[prefix + " _knee_joint"].transform.translation.x, transforms[prefix +"_knee_joint"].transform.translation.y);
+  double lr1 = distance(transforms[prefix + "_foot_b"].transform.translation.x, transforms[prefix + "_foot_b"].transform.translation.y, transforms[prefix + " _knee_joint"].transform.translation.x, transforms[prefix +"_knee_joint"].transform.translation.y);
   double alpha = angleCosineRule(lr1, l2, l4 + l5);
   double lr2 = angleCosineRule(l2, l4, alpha);
   double beta = angleCosineRule(lr2, l1, l3);
@@ -72,9 +73,9 @@ bool AlexStatePublisher::legIkineNoHip(std::string prefix, std::map<std::string,
     sigma = M_PI - atan((transforms[prefix + "_foot_b"].transform.translation.y > transforms[prefix + " _knee_joint"].transform.translation.y)/(transforms[prefix + "_foot_b"].transform.translation.x > transforms[prefix + " _knee_joint"].transform.translation.x));
   }
 
-  vector<geometry_msgs::TransformStamped> jointAngles;
+  std::vector<geometry_msgs::TransformStamped> jointAngles;
   tf2Scalar roll, pitch, yaw;
-  pitch = (sigma + iota) - ;
+  pitch = (sigma + iota);
   roll = 0;
   yaw = 0;
   geometry_msgs::TransformStamped transform;
