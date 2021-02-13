@@ -55,19 +55,21 @@
   <build_depend>tf2_msgs</build_depend>
   <build_depend>alex_msgs</build_depend>
   <build_depend>can_msgs</build_depend>
-
+  <build_depend>alex_global</build_depend>
   <build_export_depend>roscpp</build_export_depend>
   <build_export_depend>std_msgs</build_export_depend>
   <build_export_depend>alex_driver</build_export_depend>
   <build_export_depend>tf2_msgs</build_export_depend>
   <build_export_depend>alex_msgs</build_export_depend>
   <build_export_depend>can_msgs</build_export_depend>
+  <build_export_depend>alex_global</build_export_depend>
   <exec_depend>roscpp</exec_depend>
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>alex_driver</exec_depend>
   <exec_depend>tf2_msgs</exec_depend>
   <exec_depend>alex_msgs</exec_depend>
   <exec_depend>can_msgs</exec_depend>
+  <exec_depend>alex_global</exec_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

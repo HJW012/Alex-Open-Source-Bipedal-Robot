@@ -14,14 +14,19 @@ find_package(catkin REQUIRED COMPONENTS
   tf2_msgs
   alex_msgs
   can_msgs
-  
+  alex_global
 )
 
 ## System dependencies are found with CMake's conventions
 find_package(catkin REQUIRED COMPONENTS
-      roscpp
-      tf2_ros
-      alex_driver
+roscpp
+std_msgs
+alex_driver
+tf2_msgs
+alex_msgs
+can_msgs
+tf2_ros
+alex_global
       )
 
 

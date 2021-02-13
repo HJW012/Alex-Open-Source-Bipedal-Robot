@@ -102,6 +102,7 @@ void AlexStatePublisher::publishTransforms(const std::map<std::string, double>& 
 
   std::map<int, geometry_msgs::TransformStamped> pointMap;
   std::map<std::string, geometry_msgs::TransformStamped> transforms;
+  std::vector<geometry_msgs::TransformStamped> transformVector;
   int pointIndex = 0;
   int pointCount = 0;
   for (std::map<std::string, double>::const_iterator jnt = joint_positions.begin(); jnt != joint_positions.end(); jnt++) {
@@ -114,7 +115,8 @@ void AlexStatePublisher::publishTransforms(const std::map<std::string, double>& 
 
 
       // pointMap[pointIndex] = tf_transform;
-      transforms[tf_transform.child_frame_id] = tf_transform;
+      // transforms[tf_transform.child_frame_id] = tf_transform;
+      transformVector.push_back(tf_transform);
       // pointIndex++;
       // pointCount = pointIndex;
       // tf_transform.transform.translation.x = 1;
@@ -128,12 +130,12 @@ void AlexStatePublisher::publishTransforms(const std::map<std::string, double>& 
     }
   }
 
-  fkine(transforms);
+  fkine(transformVector);
 
-  for (std::map<std::string, geometry_msgs::TransformStamped>::iterator i = transforms.begin(); i != transforms.end(); i++) {
-    tf_transforms.push_back(i->second);
-  }
-  tf_broadcaster_.sendTransform(tf_transforms);
+  // for (std::map<std::string, geometry_msgs::TransformStamped>::iterator i = transforms.begin(); i != transforms.end(); i++) {
+  //   tf_transforms.push_back(i->second);
+  // }
+  tf_broadcaster_.sendTransform(transformVector);
 
 
 /*
@@ -238,22 +240,22 @@ bool AlexStatePublisher::legFkine(std::string prefix, std::map<std::string, geom
   double roll, pitch, yaw;
   getRPY(transforms[prefix + "_knee_link_b"].transform.rotation, roll, pitch, yaw);
   double q2 = yaw;
-  double localX2 = l2 * cos(q2);
-  double localY2 = -l2 * sin(q2);
+  double localX2 = l_knee_b * cos(q2);
+  double localY2 = -l_knee_b * sin(q2);
 
   getRPY(transforms[prefix + "_knee_link_a"].transform.rotation, roll, pitch, yaw);
   double q1 = yaw + q2;
-  double localX1 = l1 * cos(q1);
-  double localY1 = -l1 * sin(q1);
+  double localX1 = l_knee_a * cos(q1);
+  double localY1 = -l_knee_a * sin(q1);
 
 
   double lr1 = distance(localX1, localY1, localX2, localY2);
-  double alpha1 = angleCosineRule(l1, l2, lr1);
-  double alpha2 = angleCosineRule(l3, lr1, l4);
-  double gamma1 = angleCosineRule(lr1, l2, l1);
-  double gamma2 = angleCosineRule(lr1, l4, l3);
-  double beta1 = angleCosineRule(l2, lr1, l1);
-  double beta2 = angleCosineRule(l4, lr1, l3);
+  double alpha1 = angleCosineRule(l_knee_a, l_knee_b, lr1);
+  double alpha2 = angleCosineRule(l_shin_a, lr1, l_shin_connection);
+  double gamma1 = angleCosineRule(lr1, l_knee_b, l_knee_a);
+  double gamma2 = angleCosineRule(lr1, l_shin_connection, l_shin_a);
+  double beta1 = angleCosineRule(l_knee_b, lr1, l_knee_a);
+  double beta2 = angleCosineRule(l_shin_connection, lr1, l_shin_a);
   double alpha = alpha1 + alpha2;
   double beta = beta1 + beta2;
   double q3 = sqrt((M_PI - beta)/M_PI);
@@ -276,27 +278,27 @@ bool AlexStatePublisher::legFkine(std::string prefix, std::map<std::string, geom
 
   left_foot_offset.transform.translation.x = 0;
   left_foot_offset.transform.translation.y = 0;
-  left_foot_offset.transform.translation.x += l11 + l10 + l5;
+  left_foot_offset.transform.translation.x += l_ankle_connection + (l_shin_connection - l_ankle_connection) + (l_shin_b - l_shin_connection);
 
   ankle_b_offset.transform.translation.x = 0;
   ankle_b_offset.transform.translation.y = 0;
-  ankle_b_offset.transform.translation.x += l11;
+  ankle_b_offset.transform.translation.x += l_ankle_connection;
   getRPY(transforms[prefix + "_ankle_link_a"].transform.rotation, roll, pitch, yaw);
-  ankle_b_offset.transform.translation.x += l6 * cos(yaw);
-  ankle_b_offset.transform.translation.y -= l6 * sin(yaw);
+  ankle_b_offset.transform.translation.x += l_ankle_a * cos(yaw);
+  ankle_b_offset.transform.translation.y -= l_ankle_a * sin(yaw);
 
   ankle_c_offset = ankle_b_offset;
   double yaw2;
   getRPY(transforms[prefix + "_ankle_link_b"].transform.rotation, roll, pitch, yaw2);
-  ankle_c_offset.transform.translation.x += l7 * cos(yaw + yaw2);
-  ankle_c_offset.transform.translation.y -= l7 * sin(yaw + yaw2);
+  ankle_c_offset.transform.translation.x += l_ankle_b * cos(yaw + yaw2);
+  ankle_c_offset.transform.translation.y -= l_ankle_b * sin(yaw + yaw2);
 
   lr1 = distance(left_foot_offset.transform.translation.x, left_foot_offset.transform.translation.y, ankle_b_offset.transform.translation.x, ankle_b_offset.transform.translation.y);
   double lr2 = distance(left_foot_offset.transform.translation.x, left_foot_offset.transform.translation.y, ankle_c_offset.transform.translation.x, ankle_c_offset.transform.translation.y);
-  alpha1 = angleCosineRule(l10 + l5, l6, lr1);
-  alpha2 = angleCosineRule(lr2, l7, lr1);
-  beta1 = angleCosineRule(l9, (transforms[prefix + "_foot_link_a"].transform.translation.x + transforms[prefix + "_ankle_link_c_2"].transform.translation.x), lr2);
-  beta2 = angleCosineRule(lr1, l7, lr2);
+  alpha1 = angleCosineRule((l_shin_connection - l_ankle_connection) + (l_shin_b - l_shin_connection), l_ankle_a, lr1);
+  alpha2 = angleCosineRule(lr2, l_ankle_b, lr1);
+  beta1 = angleCosineRule(l_foot_a, (transforms[prefix + "_foot_link_a"].transform.translation.x + transforms[prefix + "_ankle_link_c_2"].transform.translation.x), lr2);
+  beta2 = angleCosineRule(lr1, l_ankle_b, lr2);
 
   roll = 0;
   pitch = 0;
@@ -312,17 +314,23 @@ bool AlexStatePublisher::legFkine(std::string prefix, std::map<std::string, geom
   }
   transforms[prefix + "_ankle_link_c_1"].transform.rotation = setRPY(roll, pitch, yaw);
 
-  double omega = angleCosineRule(lr2, (transforms[prefix + "_foot_link_a"].transform.translation.x + transforms[prefix + "_ankle_link_c_2"].transform.translation.x), l9);
+  double omega = angleCosineRule(lr2, (transforms[prefix + "_foot_link_a"].transform.translation.x + transforms[prefix + "_ankle_link_c_2"].transform.translation.x), l_foot_a);
   yaw = -(M_PI - omega);
   transforms[prefix + "_foot_link_a"].transform.rotation = setRPY(roll, pitch, yaw);
 
   return false;
 }
 
-bool AlexStatePublisher::fkine(std::map<std::string, geometry_msgs::TransformStamped>& transforms) { //ALL OF THIS NEEDS TO BE OPTIMISED
-  legFkine("left", transforms);
-  legFkine("right", transforms);
+//bool AlexStatePublisher::fkine(std::map<std::string, geometry_msgs::TransformStamped>& transforms) { //ALL OF THIS NEEDS TO BE OPTIMISED
+//  legFkine("left", transforms);
+//  legFkine("right", transforms);
+//}
 
+bool AlexStatePublisher::fkine(std::vector<geometry_msgs::TransformStamped>& transforms) { //ALL OF THIS NEEDS TO BE OPTIMISED
+
+  fkineSrv.request.transforms = transforms;
+  fkineClient.call(fkineSrv);
+  transforms = fkineSrv.response.transforms;
 }
 
 // void lookupTransform(const std::string& target_frame, const std::string& source_frame,
@@ -376,21 +384,21 @@ end*/
 //   double roll, pitch, yaw;
 //   getRPY(pointMap[0].transform.rotation, roll, pitch, yaw);
 //   double q1 = yaw;
-//   double localX1 = l1 * cos(q1);
-//   double localY1 = -l1 * sin(q1);
+//   double localX1 = l_knee_a * cos(q1);
+//   double localY1 = -l_knee_a * sin(q1);
 //
 //   getRPY(pointMap[1].transform.rotation, roll, pitch, yaw);
 //   double q2 = yaw;
-//   double localX2 = l2 * cos(q2);
-//   double localY2 = -l2 * sin(q2);
+//   double localX2 = l_knee_b * cos(q2);
+//   double localY2 = -l_knee_b * sin(q2);
 //
 //   double lr1 = distance(localX1, localY1, localX2, localY2);
-//   double alpha1 = angleCosineRule(l1, l2, lr1);
-//   double alpha2 = angleCosineRule(l3, lr1, l4);
-//   double gamma1 = angleCosineRule(lr1, l2, l1);
-//   double gamma2 = angleCosineRule(lr1, l4, l3);
-//   double beta1 = angleCosineRule(l2, lr1, l1);
-//   double beta2 = angleCosineRule(l4, lr1, l3);
+//   double alpha1 = angleCosineRule(l_knee_a, l_knee_b, lr1);
+//   double alpha2 = angleCosineRule(l_shin_a, lr1, l_shin_connection);
+//   double gamma1 = angleCosineRule(lr1, l_knee_b, l_knee_a);
+//   double gamma2 = angleCosineRule(lr1, l_shin_connection, l_shin_a);
+//   double beta1 = angleCosineRule(l_knee_b, lr1, l_knee_a);
+//   double beta2 = angleCosineRule(l_shin_connection, lr1, l_shin_a);
 //   double alpha = alpha1 + alpha2;
 //   double beta = beta1 + beta2;
 //   double q3 = sqrt((M_PI - beta)/M_PI);

@@ -19,6 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf2_kdl
   tf2_ros
   alex_kinematics
+  alex_global
 )
 find_package(Eigen3 REQUIRED)
 
@@ -37,6 +38,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf2_ros
   tf2_kdl
   urdfdom_headers
+  alex_global
 )
 
 
@@ -77,10 +79,10 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
+#  add_service_files(
+#  FILES
+# alex_fkine.srv
+# alex_ikine.srv
 # )
 
 ## Generate actions in the 'action' folder
@@ -91,10 +93,11 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   sensor_msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+  geometry_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##

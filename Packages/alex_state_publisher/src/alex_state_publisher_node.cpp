@@ -45,7 +45,7 @@ int main(int argc, char** argv)
   }
 
   alex_state_publisher::JointStateListener state_publisher(tree, mimic, model);
-  ikineClient = node.serviceClient<alex_kinematics::alex_ikine>("alex_ikine_node");
+  fkineClient = node.serviceClient<alex_kinematics::alex_fkine>("alex_fkine");
 
   ros::spin();
 

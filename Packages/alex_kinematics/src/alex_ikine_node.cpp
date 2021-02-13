@@ -19,19 +19,7 @@
 #include <tf2/LinearMath/Matrix3x3.h>
 #include <geometry_msgs/Quaternion.h>
 #include "alex_kinematics/alex_ikine.h"
-// Need to change these and URDF is limb lengths change
-#define l1 0.1f
-#define l2 0.3f
-#define l3 0.309f
-#define l4 0.115f
-#define l5 0.19f
-#define l6 0.02735f
-#define l7 0.0432f
-#define l8a 0.1493f
-#define l8b 0.155795f
-#define l9 0.055f
-#define l10 0.04025f
-#define l11 0.07475f
+#include "alex_global/global_definitions.h"
 
 //#include "alex_kinematics/alex_fkine_node.h"
 double distance(double, double, double, double);
@@ -42,48 +30,46 @@ void getRPY(tf2::Quaternion, double&, double&, double&);
 void getRPY(geometry_msgs::Quaternion, double&, double&, double&);
 tf2::Quaternion quatConversion(geometry_msgs::Quaternion);
 geometry_msgs::Quaternion quatConversion(tf2::Quaternion);
-bool legIkineNoHip(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>&);
+bool ikine(alex_kinematics::alex_ikine::Request &req, alex_kinematics::alex_ikine::Response &res);
+bool legIkine(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>& transforms);
+bool hipIkine(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>& transforms, std::map<std::string, geometry_msgs::TransformStamped>& mappedTransforms);
+bool kneeIkine(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>& transforms, std::map<std::string, geometry_msgs::TransformStamped>& mappedTransforms);
+bool ankleIkine(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>& transforms, std::map<std::string, geometry_msgs::TransformStamped>& mappedTransforms);
+geometry_msgs::TransformStamped getRelativeTransform(geometry_msgs::TransformStamped targetTF, geometry_msgs::TransformStamped parentTF);
 
 
 bool ikine(alex_kinematics::alex_ikine::Request &req, alex_kinematics::alex_ikine::Response &res) {
   std::map<std::string, geometry_msgs::TransformStamped> transforms;
-  for (auto x : req.transforms) {
+  for (auto x : req.footTransforms) {
     transforms[x.child_frame_id] = x;
   }
-  legIkineNoHip("left", transforms);
-  legIkineNoHip("right", transforms);
+  legIkine("left", transforms);
+  legIkine("right", transforms);
 }
 
-bool legIkineNoHip(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>& transforms) {
-  // Perhaps the entered transform will be in world coordinates relative to hip or knee joint or even base link - only 2 or 4 transforms should be input
-  double lr1 = distance(transforms[prefix + "_foot_b"].transform.translation.x, transforms[prefix + "_foot_b"].transform.translation.y, transforms[prefix + " _knee_joint"].transform.translation.x, transforms[prefix +"_knee_joint"].transform.translation.y);
-  double alpha = angleCosineRule(lr1, l2, l4 + l5);
-  double lr2 = angleCosineRule(l2, l4, alpha);
-  double beta = angleCosineRule(lr2, l1, l3);
-  double delta1 = angleCosineRule(l2, l4, lr2);
-  double delta2 = angleCosineRule(l1, lr2, l3);
-  double gamma1 = angleCosineRule(l4, l2, lr2);
-  double gamma2 = angleCosineRule(l3, lr2, l1);
-  double gamma = gamma1 + gamma2;
-  double iota = angleCosineRule(l4 + l5, l2, lr1);
-  double sigma = 0;
-  if (transforms[prefix + "_foot_b"].transform.translation.x > transforms["base_link"].transform.translation.x) {
-    sigma = -atan((transforms[prefix + "_foot_b"].transform.translation.y > transforms[prefix + " _knee_joint"].transform.translation.y)/(transforms[prefix + "_foot_b"].transform.translation.x > transforms[prefix + " _knee_joint"].transform.translation.x));
-  } else {
-    sigma = M_PI - atan((transforms[prefix + "_foot_b"].transform.translation.y > transforms[prefix + " _knee_joint"].transform.translation.y)/(transforms[prefix + "_foot_b"].transform.translation.x > transforms[prefix + " _knee_joint"].transform.translation.x));
-  }
-
-  std::vector<geometry_msgs::TransformStamped> jointAngles;
-  tf2Scalar roll, pitch, yaw;
-  pitch = (sigma + iota);
-  roll = 0;
-  yaw = 0;
-  geometry_msgs::TransformStamped transform;
-  transform.transform.rotation = setRPY(roll, pitch, yaw);
-  jointAngles.push_back(transform);
-
+bool legIkine(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>& transforms) {
+  std::map<std::string, geometry_msgs::TransformStamped> mappedTransforms = transforms;
+  hipIkine(prefix, transforms, mappedTransforms);   // Find hip joint angle and map foot coords to calculate knee/ankle joint angles
+  kneeIkine(prefix, transforms, mappedTransforms);
+  ankleIkine(prefix, transforms, mappedTransforms);
 
 }
+
+//Ikine for hip joint angles and to map foot coords - must be performed before knee ikine
+bool hipIkine(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>& transforms, std::map<std::string, geometry_msgs::TransformStamped>& mappedTransforms) {
+
+}
+
+//Ikine for knee joint angles - must be performed after hip ikine with mapped foot coords
+bool kneeIkine(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>& transforms, std::map<std::string, geometry_msgs::TransformStamped>& mappedTransforms) {
+
+}
+
+// Ikine for ankle - must be performed after hip and knee ikine with mapped foot coords
+bool ankleIkine(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>& transforms, std::map<std::string, geometry_msgs::TransformStamped>& mappedTransforms) {
+
+}
+
 /*
 
 lr1 = distance(p0(1), p0(2), p4(1), p4(2));

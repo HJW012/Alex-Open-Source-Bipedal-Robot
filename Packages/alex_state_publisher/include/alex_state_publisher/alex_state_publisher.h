@@ -1,19 +1,6 @@
 #ifndef ALEX_STATE_PUBLISHER_H
 #define ALEX_STATE_PUBLISHER_H
 
-// Need to change these and URDF is limb lengths change
-#define l1 0.1f
-#define l2 0.3f
-#define l3 0.309f
-#define l4 0.115f
-#define l5 0.19f
-#define l6 0.02735f
-#define l7 0.0432f
-#define l8a 0.1493f
-#define l8b 0.155795f
-#define l9 0.055f
-#define l10 0.04025f
-#define l11 0.07475f
 
 #include <map>
 #include <string>
@@ -38,9 +25,12 @@
 #include <geometry_msgs/Quaternion.h>
 #include "alex_kinematics/alex_fkine.h"
 #include "alex_kinematics/alex_ikine.h"
+#include "alex_global/global_definitions.h"
 
 ros::ServiceClient fkineClient;
+alex_kinematics::alex_fkine fkineSrv;
 ros::ServiceClient ikineClient;
+alex_kinematics::alex_ikine ikineSrv;
 
 namespace alex_state_publisher {
 
@@ -85,8 +75,9 @@ public:
   void getRPY(geometry_msgs::Quaternion, double&, double&, double&);
   tf2::Quaternion quatConversion(geometry_msgs::Quaternion);
   geometry_msgs::Quaternion quatConversion(tf2::Quaternion);
-  bool fkine(std::map<std::string, geometry_msgs::TransformStamped>&);
+  //bool fkine(std::map<std::string, geometry_msgs::TransformStamped>&);
   bool legFkine(std::string, std::map<std::string, geometry_msgs::TransformStamped>&);
+  bool fkine(std::vector<geometry_msgs::TransformStamped>&);
 
 
 

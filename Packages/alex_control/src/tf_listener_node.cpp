@@ -21,6 +21,7 @@
 #include <tf/LinearMath/Scalar.h>
 #include <tf/LinearMath/Quaternion.h>
 #include <geometry_msgs/Quaternion.h>
+#include <alex_global/global_definitions.h>
 
 
 // tf_broadcaster_.sendTransform(tf_transforms);
