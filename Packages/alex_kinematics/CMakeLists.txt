@@ -7,13 +7,24 @@ project(alex_kinematics)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
+find_package(orocos_kdl REQUIRED)
+
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   message_generation
   geometry_msgs
   alex_global
+  kdl_parser
+  tf2_kdl
+  urdfdom_headers
+  orocos_kdl
+  tf2_ros
 )
+
+find_package(Eigen3 REQUIRED)
+
+find_package(urdfdom_headers REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)

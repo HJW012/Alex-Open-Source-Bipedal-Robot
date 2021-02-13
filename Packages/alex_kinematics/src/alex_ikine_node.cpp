@@ -5,9 +5,11 @@
 #include <urdf/model.h>
 #include <tf2_ros/static_transform_broadcaster.h>
 #include <tf2_ros/transform_broadcaster.h>
-#include <kdl/frames.hpp>
-#include <kdl/segment.hpp>
 #include <kdl/tree.hpp>
+#include <kdl/chain.hpp>
+#include <kdl/segment.hpp>
+#include <kdl/frames.hpp>
+#include <kdl_parser/kdl_parser.hpp>
 #include <geometry_msgs/Point.h>
 #include <geometry_msgs/TransformStamped.h>
 #include <std_msgs/Float64.h>
@@ -18,6 +20,7 @@
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2/LinearMath/Matrix3x3.h>
 #include <geometry_msgs/Quaternion.h>
+#include <urdf/model.h>
 #include "alex_kinematics/alex_ikine.h"
 #include "alex_global/global_definitions.h"
 
@@ -36,6 +39,13 @@ bool hipIkine(std::string prefix, std::map<std::string, geometry_msgs::Transform
 bool kneeIkine(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>& transforms, std::map<std::string, geometry_msgs::TransformStamped>& mappedTransforms);
 bool ankleIkine(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>& transforms, std::map<std::string, geometry_msgs::TransformStamped>& mappedTransforms);
 geometry_msgs::TransformStamped getRelativeTransform(geometry_msgs::TransformStamped targetTF, geometry_msgs::TransformStamped parentTF);
+bool getURDFTree(std::map<std::string, geometry_msgs::TransformStamped>& modelTree);
+void addChildren(const KDL::SegmentMap::const_iterator segment);
+
+std::map<std::string, geometry_msgs::TransformStamped> modelTree;
+urdf::Model model_;
+
+
 
 
 bool ikine(alex_kinematics::alex_ikine::Request &req, alex_kinematics::alex_ikine::Response &res) {
@@ -69,6 +79,22 @@ bool kneeIkine(std::string prefix, std::map<std::string, geometry_msgs::Transfor
 bool ankleIkine(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>& transforms, std::map<std::string, geometry_msgs::TransformStamped>& mappedTransforms) {
 
 }
+
+bool getURDFTree(ros::NodeHandle& n, std::map<std::string, geometry_msgs::TransformStamped>& modelTree) {
+  std::string stringModel;
+  urdf::Model model;
+
+  n.getParam("robot_description", stringModel);
+  model.initString(stringModel);
+  KDL::Tree tree;
+  if (!kdl_parser::treeFromUrdfModel(model, tree)) {
+    ROS_ERROR("Failed to extract kdl tree from xml robot description");
+    return 1;
+  }
+
+  
+}
+
 
 /*
 
@@ -155,6 +181,7 @@ int main(int argc, char **argv) {
   ros::init(argc, argv, "alex_ikine_node");
   ros::NodeHandle n;
 
+  getURDFTree(n, modelTree);
   ros::ServiceServer service = n.advertiseService("alex_ikine_node", ikine);
   ROS_INFO("Alex Ikine Node");
   ros::spin();
