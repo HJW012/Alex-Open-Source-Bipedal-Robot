@@ -24,6 +24,7 @@
 #include "alex_kinematics/alex_ikine.h"
 #include "alex_global/global_definitions.h"
 #include <tf2_kdl/tf2_kdl.h>
+#include <sensor_msgs/JointState.h>
 
 //#include "alex_kinematics/alex_fkine_node.h"
 double distance(double, double, double, double);
@@ -44,6 +45,7 @@ bool getURDFTree(std::map<std::string, geometry_msgs::TransformStamped>& modelTr
 void addChildren(const KDL::SegmentMap::const_iterator segment);
 void mapTransforms(std::map<std::string, geometry_msgs::TransformStamped>&);
 std::string stripSlash(const std::string &);
+sensor_msgs::JointState jointStates;
 
 class SegmentPair
 {
@@ -70,6 +72,7 @@ bool ikine(alex_kinematics::alex_ikine::Request &req, alex_kinematics::alex_ikin
   }
   legIkine("left", transforms);
   legIkine("right", transforms);
+  res.jointStates = jointStates;
 }
 
 bool legIkine(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>& transforms) {
@@ -78,6 +81,7 @@ bool legIkine(std::string prefix, std::map<std::string, geometry_msgs::Transform
   kneeIkine(prefix, transforms, mappedTransforms);
   ankleIkine(prefix, transforms, mappedTransforms);
   // foot transforms are relative to hips
+
 }
 
 //Ikine for hip joint angles and to map foot coords - must be performed before knee ikine.
@@ -85,25 +89,29 @@ bool hipIkine(std::string prefix, std::map<std::string, geometry_msgs::Transform
   geometry_msgs::TransformStamped footA = transforms[prefix + "_foot_a"];
   double knee_offset_yz = sqrt(pow(transformMap[prefix + "_knee_link_b"].transform.translation.y, 2) + pow(transformMap[prefix + "_knee_link_b"].transform.translation.x, 2));
   double lr1 = distance(0, 0, footA.transform.translation.y, footA.transform.translation.z);
-  double alpha1 = abs(atan((transformMap[prefix + "_knee_link_b"].transform.translation.x)/(transformMap[prefix + "_knee_link_b"].transform.translation.y)));
+  double alpha1 = angleCosineRule(abs(transformMap[prefix + "_knee_link_b"].transform.translation.x), knee_offset_yz, abs(transformMap[prefix + "_knee_link_b"].transform.translation.y));
   double alpha2 = M_PI - (M_PI/2 + alpha1);
   double theta = alpha1 + M_PI/2;
-  double alpha = asin(knee_offset_yz * (lr1/sin(theta)));
+  double alpha = asin(knee_offset_yz * (sin(theta)/lr1));
   double gamma = M_PI - (theta + alpha);
   double foot_offset = sin(gamma) * (lr1/sin(theta));
+  double iota = angleCosineRule(abs(footA.transform.translation.y), abs(footA.transform.translation.z), abs(lr1));
   double sigma;
   double hipJointAngle;
   if (prefix == "left") {
     double ohm = abs(atan(footA.transform.translation.z/footA.transform.translation.y));
-    if (footA.transform.translation.y >= -transformMap[prefix + "_knee_link_b"].transform.translation.y) { //target to the left on default foot (vertical foot)
+    if (footA.transform.translation.y <= -abs(transformMap[prefix + "_knee_link_b"].transform.translation.y)) { //target to the left on default foot (vertical foot)
       sigma = M_PI - ohm;
     } else { //target to the right of default (vertical) foot
       sigma = ohm; //Sigma is angle of lr1
     }
-    hipJointAngle = sigma + gamma;
+    hipJointAngle = -(iota + gamma - (M_PI - theta));
   } else if (prefix == "right") {
 
   }
+
+  jointStates.name.push_back("base_link_to_" + prefix + "_hip_link");
+  jointStates.position.push_back(hipJointAngle);
 }
 
 //Ikine for knee joint angles - must be performed after hip ikine with mapped foot coords

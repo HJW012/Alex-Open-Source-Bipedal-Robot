@@ -18,8 +18,8 @@ int main(int argc, char** argv)
   ikineClient = node.serviceClient<alex_kinematics::alex_ikine>("alex_ikine");
   geometry_msgs::TransformStamped target_left_foot_a;
   target_left_foot_a.child_frame_id = "left_foot_a";
-  target_left_foot_a.transform.translation.y = -0.15;
-  target_left_foot_a.transform.translation.y = -0.5;
+  target_left_foot_a.transform.translation.y = -0.2;
+  target_left_foot_a.transform.translation.z = -0.4;
 
 while (ros::ok()) {
   target_left_foot_a.child_frame_id = "left_foot_a";
@@ -32,7 +32,9 @@ while (ros::ok()) {
   ikineSrv.request.footTransforms.push_back(target_left_foot_a);
   ikineClient.call(ikineSrv);
   testJS.name = name;
-  testJS.position = position;
+
+  testJS.name = ikineSrv.response.jointStates.name;
+  testJS.position = ikineSrv.response.jointStates.position;
   jointStatePub.publish(testJS);
 
 
