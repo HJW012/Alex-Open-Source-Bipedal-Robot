@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   alex_msgs
   can_msgs
   alex_global
+  sensor_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -27,6 +28,7 @@ alex_msgs
 can_msgs
 tf2_ros
 alex_global
+sensor_msgs
       )
 
 
@@ -87,6 +89,7 @@ alex_global
    tf2_msgs
    alex_msgs
    can_msgs
+   sensor_msgs
  )
 
 ################################################

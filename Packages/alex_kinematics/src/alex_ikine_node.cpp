@@ -23,6 +23,7 @@
 #include <urdf/model.h>
 #include "alex_kinematics/alex_ikine.h"
 #include "alex_global/global_definitions.h"
+#include <tf2_kdl/tf2_kdl.h>
 
 //#include "alex_kinematics/alex_fkine_node.h"
 double distance(double, double, double, double);
@@ -41,9 +42,23 @@ bool ankleIkine(std::string prefix, std::map<std::string, geometry_msgs::Transfo
 geometry_msgs::TransformStamped getRelativeTransform(geometry_msgs::TransformStamped targetTF, geometry_msgs::TransformStamped parentTF);
 bool getURDFTree(std::map<std::string, geometry_msgs::TransformStamped>& modelTree);
 void addChildren(const KDL::SegmentMap::const_iterator segment);
+void mapTransforms(std::map<std::string, geometry_msgs::TransformStamped>&);
+std::string stripSlash(const std::string &);
 
+class SegmentPair
+{
+public:
+  SegmentPair(const KDL::Segment& p_segment, const std::string& p_root, const std::string& p_tip):
+    segment(p_segment), root(p_root), tip(p_tip){}
+
+  KDL::Segment segment;
+  std::string root, tip;
+};
+
+std::map<std::string, SegmentPair> segments_, segments_fixed_;
 std::map<std::string, geometry_msgs::TransformStamped> modelTree;
 urdf::Model model_;
+std::map<std::string, geometry_msgs::TransformStamped> transformMap;
 
 
 
@@ -62,12 +77,33 @@ bool legIkine(std::string prefix, std::map<std::string, geometry_msgs::Transform
   hipIkine(prefix, transforms, mappedTransforms);   // Find hip joint angle and map foot coords to calculate knee/ankle joint angles
   kneeIkine(prefix, transforms, mappedTransforms);
   ankleIkine(prefix, transforms, mappedTransforms);
-
+  // foot transforms are relative to hips
 }
 
-//Ikine for hip joint angles and to map foot coords - must be performed before knee ikine
+//Ikine for hip joint angles and to map foot coords - must be performed before knee ikine.
 bool hipIkine(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>& transforms, std::map<std::string, geometry_msgs::TransformStamped>& mappedTransforms) {
+  geometry_msgs::TransformStamped footA = transforms[prefix + "_foot_a"];
+  double knee_offset_yz = sqrt(pow(transformMap[prefix + "_knee_link_b"].transform.translation.y, 2) + pow(transformMap[prefix + "_knee_link_b"].transform.translation.x, 2));
+  double lr1 = distance(0, 0, footA.transform.translation.y, footA.transform.translation.z);
+  double alpha1 = abs(atan((transformMap[prefix + "_knee_link_b"].transform.translation.x)/(transformMap[prefix + "_knee_link_b"].transform.translation.y)));
+  double alpha2 = M_PI - (M_PI/2 + alpha1);
+  double theta = alpha1 + M_PI/2;
+  double alpha = asin(knee_offset_yz * (lr1/sin(theta)));
+  double gamma = M_PI - (theta + alpha);
+  double foot_offset = sin(gamma) * (lr1/sin(theta));
+  double sigma;
+  double hipJointAngle;
+  if (prefix == "left") {
+    double ohm = abs(atan(footA.transform.translation.z/footA.transform.translation.y));
+    if (footA.transform.translation.y >= -transformMap[prefix + "_knee_link_b"].transform.translation.y) { //target to the left on default foot (vertical foot)
+      sigma = M_PI - ohm;
+    } else { //target to the right of default (vertical) foot
+      sigma = ohm; //Sigma is angle of lr1
+    }
+    hipJointAngle = sigma + gamma;
+  } else if (prefix == "right") {
 
+  }
 }
 
 //Ikine for knee joint angles - must be performed after hip ikine with mapped foot coords
@@ -92,9 +128,54 @@ bool getURDFTree(ros::NodeHandle& n, std::map<std::string, geometry_msgs::Transf
     return 1;
   }
 
-  
+  addChildren(tree.getRootSegment());
+  mapTransforms(transformMap);
 }
 
+void addChildren(const KDL::SegmentMap::const_iterator segment) {
+  const std::string& root = GetTreeElementSegment(segment->second).getName();
+
+  const std::vector<KDL::SegmentMap::const_iterator>& children = GetTreeElementChildren(segment->second);
+  for (size_t i = 0; i < children.size(); ++i) {
+    const KDL::Segment& child = GetTreeElementSegment(children[i]->second);
+    SegmentPair s(GetTreeElementSegment(children[i]->second), root, child.getName());
+    if (child.getJoint().getType() == KDL::Joint::None) {
+      if (model_.getJoint(child.getJoint().getName()) && model_.getJoint(child.getJoint().getName())->type == urdf::Joint::FLOATING) {
+        ROS_INFO("Floating joint. Not adding segment from %s to %s. This TF can not be published based on joint_states info", root.c_str(), child.getName().c_str());
+      }
+      else {
+        segments_fixed_.insert(make_pair(child.getJoint().getName(), s));
+        ROS_DEBUG("Adding fixed segment from %s to %s", root.c_str(), child.getName().c_str());
+      }
+    }
+    else {
+      segments_.insert(make_pair(child.getJoint().getName(), s));
+      ROS_DEBUG("Adding moving segment from %s to %s", root.c_str(), child.getName().c_str());
+    }
+    addChildren(children[i]);
+  }
+}
+
+void mapTransforms(std::map<std::string, geometry_msgs::TransformStamped>& transformMap) {
+  for (std::map<std::string, SegmentPair>::const_iterator seg_ = segments_.begin(); seg_ != segments_.end(); seg_++) {
+    std::map<std::string, SegmentPair>::const_iterator seg = segments_.find(seg_->first);
+    if (seg != segments_.end()) {
+      geometry_msgs::TransformStamped tf_transform = tf2::kdlToTransform(seg->second.segment.pose(0)); //Use 0 since we only want the tree for dimensions, not joint angles
+      tf_transform.header.frame_id = stripSlash(seg->second.root);
+      tf_transform.child_frame_id = stripSlash(seg->second.tip);
+
+      transformMap[tf_transform.child_frame_id] = tf_transform;
+    }
+  }
+}
+
+std::string stripSlash(const std::string & in) {
+  if (in.size() && in[0] == '/')
+  {
+    return in.substr(1);
+  }
+  return in;
+}
 
 /*
 

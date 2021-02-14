@@ -20,6 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
   urdfdom_headers
   orocos_kdl
   tf2_ros
+  sensor_msgs
 )
 
 find_package(Eigen3 REQUIRED)
@@ -85,6 +86,7 @@ generate_messages(
   DEPENDENCIES
   std_msgs
   geometry_msgs
+  sensor_msgs
 )
 
 ################################################

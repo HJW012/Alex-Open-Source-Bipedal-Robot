@@ -3,6 +3,7 @@
   <arg name="model" default="$(find alex_description)/urdf/FullBody.urdf.xacro"/>
   <arg name="gui" default="true" />
   <arg name="rvizconfig" default="$(find alex_description)/rviz/urdf.rviz" />
+  <arg name="node_start_delay" default="0.0" />
   <param name="robot_description" command="$(find xacro)/xacro $(arg model)" />
 
 
@@ -11,4 +12,6 @@
   <node name="alex_fkine_node" pkg="alex_kinematics" type="alex_fkine_node" output="screen" required="true" />
   <node name="alex_state_publisher" pkg="alex_state_publisher" type="alex_state_publisher" output="screen"/>
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true"/>
+  <node name="alex_ikine_node" pkg="alex_kinematics" type="alex_ikine_node" output="screen" required="true" launch-prefix="bash -c 'sleep $(arg node_start_delay); $0 $@' " />
+
 </launch>
