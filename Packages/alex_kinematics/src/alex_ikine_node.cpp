@@ -263,7 +263,7 @@ int main(int argc, char **argv) {
   ros::NodeHandle n;
 
   getURDFTree(n, modelTree);
-  ros::ServiceServer service = n.advertiseService("alex_ikine_node", ikine);
+  ros::ServiceServer service = n.advertiseService("alex_ikine", ikine);
   ROS_INFO("Alex Ikine Node");
   ros::spin();
 

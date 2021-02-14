@@ -170,9 +170,15 @@ include_directories(
 # )
 
 add_executable(alex_tf_listener_node src/tf_listener_node.cpp)
+add_executable(alex_ikine_test_node src/ikine_test_node.cpp)
 add_dependencies(alex_tf_listener_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(alex_ikine_test_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 target_link_libraries(alex_tf_listener_node
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(alex_ikine_test_node
   ${catkin_LIBRARIES}
 )
 
