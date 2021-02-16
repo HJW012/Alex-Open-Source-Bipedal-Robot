@@ -66,20 +66,22 @@ std::map<std::string, geometry_msgs::TransformStamped> transformMap;
 
 
 bool ikine(alex_kinematics::alex_ikine::Request &req, alex_kinematics::alex_ikine::Response &res) {
+  jointStates.name.clear();
+  jointStates.position.clear();
   std::map<std::string, geometry_msgs::TransformStamped> transforms;
   for (auto x : req.footTransforms) {
     transforms[x.child_frame_id] = x;
   }
   legIkine("left", transforms);
-  legIkine("right", transforms);
+  //legIkine("right", transforms);
   res.jointStates = jointStates;
 }
 
 bool legIkine(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>& transforms) {
   std::map<std::string, geometry_msgs::TransformStamped> mappedTransforms = transforms;
-  hipIkine(prefix, transforms, mappedTransforms);   // Find hip joint angle and map foot coords to calculate knee/ankle joint angles
+  //hipIkine(prefix, transforms, mappedTransforms);   // Find hip joiniftyXnt angle and map foot coords to calculate knee/ankle joint angles
   kneeIkine(prefix, transforms, mappedTransforms);
-  ankleIkine(prefix, transforms, mappedTransforms);
+  //ankleIkine(prefix, transforms, mappedTransforms);
   // foot transforms are relative to hips
 
 }
@@ -102,21 +104,73 @@ bool hipIkine(std::string prefix, std::map<std::string, geometry_msgs::Transform
     double ohm = abs(atan(footA.transform.translation.z/footA.transform.translation.y));
     if (footA.transform.translation.y <= -abs(transformMap[prefix + "_knee_link_b"].transform.translation.y)) { //target to the left on default foot (vertical foot)
       sigma = M_PI - ohm;
+      //hipJointAngle = -(iota + gamma - (M_PI - theta));
+      hipJointAngle = -(sigma + gamma - (M_PI-theta) - M_PI/2);
     } else { //target to the right of default (vertical) foot
       sigma = ohm; //Sigma is angle of lr1
+      // hipJointAngle = -(-iota + gamma - (M_PI - theta));
+      hipJointAngle = -(sigma + gamma - (M_PI-theta) - M_PI/2);
     }
-    hipJointAngle = -(iota + gamma - (M_PI - theta));
   } else if (prefix == "right") {
 
   }
 
-  jointStates.name.push_back("base_link_to_" + prefix + "_hip_link");
-  jointStates.position.push_back(hipJointAngle);
+  // COMMENTED OUT FOR Testing
+  //jointStates.name.push_back("base_link_to_" + prefix + "_hip_link");
+  //jointStates.position.push_back(hipJointAngle);
+
+  mappedTransforms = transforms;
 }
 
 //Ikine for knee joint angles - must be performed after hip ikine with mapped foot coords
 bool kneeIkine(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>& transforms, std::map<std::string, geometry_msgs::TransformStamped>& mappedTransforms) {
+// foot A transform is relative to HIP JOINT - needs to be mapped to avoid knee offset
+  geometry_msgs::TransformStamped footA;
+  footA.transform.translation.x = mappedTransforms[prefix + "_foot_a"].transform.translation.x + o_hip_to_knee_x;
+  footA.transform.translation.z = mappedTransforms[prefix + "_foot_a"].transform.translation.z + o_hip_to_knee_z;
+  double lr1 = distance(0, 0, footA.transform.translation.x, footA.transform.translation.z);
+  double alpha = angleCosineRule(lr1, l_knee_b, l_shin_b);
+  double lr2 = sideCosineRule(l_knee_b, l_shin_connection, alpha);
+  double beta = angleCosineRule(lr2, l_knee_a, l_shin_a);
+  double delta1 = angleCosineRule(l_knee_b, l_shin_connection, lr2);
+  double delta2 = angleCosineRule(l_knee_a, lr2, l_shin_a);
+  double gamma1 = angleCosineRule(l_shin_connection, l_knee_b, lr2);
+  double gamma2 = angleCosineRule(l_shin_a, lr2, l_knee_a);
+  double gamma = gamma1 + gamma2;
+  double iota = angleCosineRule(l_shin_b, l_knee_b, lr1);
+  double sigma;
 
+  if (footA.transform.translation.x > 0) {
+    sigma = -atan((footA.transform.translation.z) / (footA.transform.translation.x));
+  } else {
+    sigma = M_PI - atan((footA.transform.translation.z) / (footA.transform.translation.x));
+  }
+
+  double q2 = (sigma + iota);
+  double q2_offset = o_knee_b - q2;
+  double q1 = q2 - gamma;
+
+  jointStates.name.push_back(prefix + "_hip_link_to_" + prefix + "_knee_link_b");
+  jointStates.name.push_back(prefix + "_knee_link_b_to_" + prefix + "_knee_link_a");
+  jointStates.position.push_back(-(o_knee_b - q2));
+  jointStates.position.push_back(q1 - o_knee_a + q2_offset);
+  std::cout << "lr1: " << lr1 << std::endl;
+  std::cout << "alpha: " << alpha << std::endl;
+  std::cout << "lr2: " << lr2 << std::endl;
+  std::cout << "beta: " << beta << std::endl;
+  std::cout << "delta1: " << delta1 << std::endl;
+  std::cout << "delta1: " << delta1 << std::endl;
+  std::cout << "gamma1: " << gamma1 << std::endl;
+  std::cout << "gamma2: " << gamma2 << std::endl;
+  std::cout << "gamma: " << gamma << std::endl;
+  std::cout << "iota: " << iota << std::endl;
+  std::cout << "sigma: " << sigma << std::endl;
+  std::cout << "o_knee_b: " << o_knee_b * 180 / M_PI << " deg" << std::endl;
+  std::cout << "q2 offset: " << q2_offset * 180 / M_PI << " deg" << std::endl;
+  std::cout << "Knee A Angle: " << (sigma + iota - gamma) * 180 / M_PI << " deg" << std::endl;
+  std::cout << "Knee B Angle: " << (sigma + iota) * 180 / M_PI << " deg" << std::endl;
+  std::cout << "Q1: " << (q1) * 180 / M_PI << " deg" << std::endl;
+  std::cout << "Q2: " << (q2) * 180 / M_PI << " deg" << std::endl;
 }
 
 // Ikine for ankle - must be performed after hip and knee ikine with mapped foot coords
@@ -184,43 +238,6 @@ std::string stripSlash(const std::string & in) {
   }
   return in;
 }
-
-/*
-
-lr1 = distance(p0(1), p0(2), p4(1), p4(2));
-    alpha = angleCosineRule(lr1, l(2), l(4) + l(5));
-    lr2 = sideCosineRule(l(2), l(4), alpha);
-    beta = angleCosineRule(lr2, l(1), l(3));
-    delta1 = angleCosineRule(l(2), l(4), lr2);
-    delta2 = angleCosineRule(l(1), lr2, l(3));
-    gamma1 = angleCosineRule(l(4), l(2), lr2); % or PI - (alpha + delta1);
-    gamma2 = angleCosineRule(l(3), lr2, l(1)); % or PI - (Beta + delta2);
-    gamma = gamma1 + gamma2;
-    iota = angleCosineRule(l(4) + l(5), l(2), lr1);
-
-    if (p4(1) > p0(1))
-        sigma = -atan((p4(2)-p0(2))/(p4(1)-p0(1)));
-    else
-        sigma = pi - atan((p4(2)-p0(2))/(p4(1)-p0(1)));
-    end
-
-    q(2) = sigma + iota;
-    q(1) = q(2) - gamma;
-
-    outP(1, 1) = p0(1) + l(1) * cos(q(1));
-    outP(1, 2) = p0(2) - l(1) * sin(q(1));
-    outP(2, 1) = p0(1) + l(2) * cos(q(2));
-    outP(2, 2) = p0(2) - l(2) * sin(q(2));
-    outP(3, 1) = p0(1) + lr2 * cos(q(1) + gamma2);
-    outP(3, 2) = p0(2) - lr2 * sin(q(1) + gamma2);
-    outP(4, 1) = p4(1);
-    outP(4, 2) = p4(2);
-
-    theta = q(2) - (pi - alpha);
-    outP(5, 1) = outP(2, 1) + l(11) * cos(theta);
-    outP(5, 2) = outP(2, 2) - l(11) * sin(theta);
-
-*/
 
 double distance(double x1, double y1, double x2, double y2) {
   double dist = abs(sqrt(pow((y1 - y2), 2) + pow(x1 - x2, 2)));

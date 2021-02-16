@@ -6,6 +6,7 @@
 
 ros::ServiceClient ikineClient;
 alex_kinematics::alex_ikine ikineSrv;
+void circlePath(double, double, double, geometry_msgs::TransformStamped&);
 
 int main(int argc, char** argv)
 {
@@ -17,28 +18,47 @@ int main(int argc, char** argv)
 
   ikineClient = node.serviceClient<alex_kinematics::alex_ikine>("alex_ikine");
   geometry_msgs::TransformStamped target_left_foot_a;
-  target_left_foot_a.child_frame_id = "left_foot_a";
-  target_left_foot_a.transform.translation.y = -0.2;
+  target_left_foot_a.child_frame_id = "right_foot_a";
+  target_left_foot_a.transform.translation.x = -0.1;
+  //target_left_foot_a.transform.translation.y = 0.2;
   target_left_foot_a.transform.translation.z = -0.4;
 
-while (ros::ok()) {
-  target_left_foot_a.child_frame_id = "left_foot_a";
-  sensor_msgs::JointState testJS;
-  std::vector<std::string>name;
-  std::vector<double>position;
-  name.push_back("base_link_to_right_hip_link");
-  position.push_back(1.2);
+  ros::Rate r(10);
+  int circleIndex = 0;
+  int circleSegments = 50;
+  double circleRadius = 0.025;
 
+while (ros::ok()) {
+  sensor_msgs::JointState jointStates;
+  target_left_foot_a.child_frame_id = "left_foot_a";
+  circlePath(circleSegments, circleIndex, circleRadius, target_left_foot_a);
+  circleIndex++;
+  if (circleIndex > circleSegments) {
+    circleIndex = 0;
+  }
   ikineSrv.request.footTransforms.push_back(target_left_foot_a);
   ikineClient.call(ikineSrv);
-  testJS.name = name;
 
-  testJS.name = ikineSrv.response.jointStates.name;
-  testJS.position = ikineSrv.response.jointStates.position;
-  jointStatePub.publish(testJS);
+  jointStates.name = ikineSrv.response.jointStates.name;
+  jointStates.position = ikineSrv.response.jointStates.position;
+
+  jointStatePub.publish(ikineSrv.response.jointStates);
 
 
   ros::spinOnce();
+  r.sleep();
 }
   return 0;
+}
+
+void circlePath(double circleSegments, double segmentIndex, double circleRadius, geometry_msgs::TransformStamped& footTransform) {
+  double centreX = -0.1;
+  double centreZ = -0.4;
+  double segment = 2*M_PI / circleSegments;
+  double currentAngle = segment * segmentIndex;
+  footTransform.transform.translation.x = centreX + circleRadius * cos(currentAngle);
+  footTransform.transform.translation.z = centreZ + circleRadius * sin(currentAngle);
+  // std::cout << "CIRCLE X: " << footTransform.transform.translation.x << std::endl;
+  // std::cout << "CIRCLE Z: " << footTransform.transform.translation.z << std::endl;
+
 }

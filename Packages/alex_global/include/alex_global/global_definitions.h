@@ -23,5 +23,9 @@
 #define o_hip_to_knee_y 0.1f
 #define o_hip_to_knee_z 0.1f
 
+// Joint Starting Orientaitons
+#define o_knee_a M_PI/4
+#define o_knee_b 3*M_PI/4
+
 // Generic Function Definitions
 void test();

@@ -19,4 +19,7 @@
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true"/>
   <node name="alex_ikine_node" pkg="alex_kinematics" type="alex_ikine_node" required="true"/>
   <node name="alex_ikine_test_node" pkg="alex_control" type="alex_ikine_test_node" output="screen" required="true" launch-prefix="bash -c 'sleep $(arg node_start_delay); $0 $@' " />
+  <node name="socketcan_bridge_node" pkg="socketcan_bridge" type="socketcan_bridge_node" output="screen"/>
+  <node name="alex_send_tmotor_command_node" pkg="alex_driver" type="send_tmotor_command_node" output="screen"/>
+  <node name="alex_tf_listener_node" pkg="alex_control" type="alex_tf_listener_node" output="screen"/>
 </launch>

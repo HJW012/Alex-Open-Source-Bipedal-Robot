@@ -67,7 +67,7 @@
         <material name="blue"/>
       </visual>
     </link>
-    <joint name="${prefix}_hip_link_to_knee_link_b" type="continuous">
+    <joint name="${prefix}_hip_link_to_${prefix}_knee_link_b" type="continuous">
       <parent link="${prefix}_hip_link"/>
       <child link="${prefix}_knee_link_b"/>
       <axis rpy="0 0 0" xyz="0 0 1"/>
