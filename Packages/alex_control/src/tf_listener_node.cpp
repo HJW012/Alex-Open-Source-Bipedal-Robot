@@ -93,31 +93,7 @@ void TFCallback(const tf2_msgs::TFMessage::ConstPtr& msg) {
   tfScalar null11 = 0;
   tfScalar null22 = 0;
 
-  // std::cout << "M1 Pose: " << tempVal1 << std::endl;
-  tfScalar null33 = tfScalar(m0.pose);
-  geometry_msgs::TransformStamped m0TF, m1TF;
 
-  tf2_ros::TransformBroadcaster test;
-  std::vector<geometry_msgs::TransformStamped> tf_transforms;
-  m0TF.transform.rotation = setRPY(null11, null22, null33);
-  m0TF.header.stamp = ros::Time::now();
-  m0TF.header.frame_id = "base_link";
-  m0TF.child_frame_id = "M0";
-  null33 = tfScalar(m1.pose);
-  m1TF.transform.rotation = setRPY(null11, null22, null33);
-  m1TF.header.stamp = m0TF.header.stamp;
-  m1TF.header.frame_id = "base_link";
-  m1TF.child_frame_id = "M1";
-  tf_transforms.push_back(m0TF);
-  tf_transforms.push_back(m1TF);
-  if (!temp) {
-    temp = true;
-    test.sendTransform(tf_transforms);
-  }
-  if (msg->transforms[0].child_frame_id == "link1" && msg->transforms[1].child_frame_id == "link2" ) {
-    std::cout << "NOW" << std::endl;
-    test.sendTransform(tf_transforms);
-  }
   alex_driver::send_tmotor_command srv;
   srv.request.motorParamOut = m0;
   client.call(srv);
