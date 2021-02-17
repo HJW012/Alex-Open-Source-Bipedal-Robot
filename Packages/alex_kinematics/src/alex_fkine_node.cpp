@@ -167,9 +167,10 @@ bool fkine(alex_kinematics::alex_fkine::Request &req, alex_kinematics::alex_fkin
   legFkine("right", transformMap);
 
   for (auto x : transformMap) {
-    tf_transforms_out.push_back(x.second); 
+    tf_transforms_out.push_back(x.second);
   }
   res.transforms = tf_transforms_out;
+  return true;
 }
 
 // bool fkine(alex_kinematics::fkine::Request &req, alex_kinematics::fkine::Response &res) {
