@@ -131,7 +131,7 @@ void AlexStatePublisher::publishTransforms(const std::map<std::string, double>& 
     }
   }
 
-   
+
   fkine(transformVector);
   // for (std::map<std::string, geometry_msgs::TransformStamped>::iterator i = transforms.begin(); i != transforms.end(); i++) {
   //   tf_transforms.push_back(i->second);
@@ -329,10 +329,8 @@ bool AlexStatePublisher::legFkine(std::string prefix, std::map<std::string, geom
 
 bool AlexStatePublisher::fkine(std::vector<geometry_msgs::TransformStamped>& transforms) { //ALL OF THIS NEEDS TO BE OPTIMISED
   fkineSrv.request.transforms = transforms;
-  std::cout << "Pre service: " << transforms.size() << std::endl;
   fkineClient.call(fkineSrv);
   transforms = fkineSrv.response.transforms;
-  std::cout << "Post service: " << fkineSrv.response.transforms.size() << std::endl;
 }
 
 // void lookupTransform(const std::string& target_frame, const std::string& source_frame,

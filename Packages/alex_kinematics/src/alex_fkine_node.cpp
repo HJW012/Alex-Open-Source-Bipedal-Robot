@@ -170,10 +170,7 @@ bool fkine(alex_kinematics::alex_fkine::Request &req, alex_kinematics::alex_fkin
     tf_transforms_out.push_back(x.second);
   }
   res.transforms = tf_transforms_out;
-<<<<<<< HEAD
-  std::cout << "In service out: " << res.transforms.size() << std::endl;
-=======
->>>>>>> 63ff198cb653b458519e8e303760523994f01fe0
+
   return true;
 }
 
