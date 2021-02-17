@@ -161,6 +161,7 @@ bool fkine(alex_kinematics::alex_fkine::Request &req, alex_kinematics::alex_fkin
 
   for (auto x : tf_transforms_in) {
     transformMap[x.child_frame_id] = x;
+    std::cout << x.child_frame_id << std::endl;
   }
 
   legFkine("left", transformMap);
