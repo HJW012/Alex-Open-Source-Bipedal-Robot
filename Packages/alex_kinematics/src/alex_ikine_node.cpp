@@ -75,6 +75,7 @@ bool ikine(alex_kinematics::alex_ikine::Request &req, alex_kinematics::alex_ikin
   legIkine("left", transforms);
   //legIkine("right", transforms);
   res.jointStates = jointStates;
+  return true;
 }
 
 bool legIkine(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>& transforms) {
