@@ -1,5 +1,9 @@
 #include <ros/ros.h>
 #include <geometry_msgs/TransformStamped.h>
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2/LinearMath/Scalar.h>
+#include <tf2/LinearMath/Matrix3x3.h>
+#include <tf2/transform_datatypes.h>
 
 // Limb Lengths
 #define l_knee_a 0.100f
@@ -27,5 +31,34 @@
 #define o_knee_a M_PI/4
 #define o_knee_b 3*M_PI/4
 
-// Generic Function Definitions
-void test();
+// TMotor Config Params
+#define P_MIN -12.5f
+#define P_MAX 12.5f
+#define V_MIN -30.0f
+#define V_MAX 30.0f
+#define KP_MIN 0.0f
+#define KP_MAX 500.0f
+#define KD_MIN 0.0f
+#define KD_MAX 5.0f
+#define T_MIN -18.0f
+#define T_MAX 18.0f
+
+// Kinematic Functions
+void fkine();
+void legFkine();
+void ikine();
+void hipikine();
+void kneeIkine();
+void ankleIkine();
+
+// General Functions
+double distance(double, double, double, double);
+double distance(double, double, double, double, double, double);
+double distance(geometry_msgs::TransformStamped, geometry_msgs::TransformStamped);
+double angleCosineRule(double, double, double);
+double sideCosineRule(double, double, double);
+tf2::Quaternion quatConversion(geometry_msgs::Quaternion);
+geometry_msgs::Quaternion quatConversion(tf2::Quaternion);
+geometry_msgs::Quaternion setRPY(tf2Scalar&, tf2Scalar&, tf2Scalar&);
+void getRPY(tf2::Quaternion, double&, double&, double&);
+void getRPY(geometry_msgs::Quaternion, double&, double&, double&);

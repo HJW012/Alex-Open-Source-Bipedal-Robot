@@ -29,36 +29,6 @@ std::map<std::string, geometry_msgs::TransformStamped> transformMap;
 bool temp = false;
 ros::ServiceClient client;
 
-tf::Quaternion quatConversion(geometry_msgs::Quaternion q) {
-  tf::Quaternion Q(q.x, q.y, q.z, q.w);
-  return Q;
-}
-
-geometry_msgs::Quaternion quatConversion(tf::Quaternion q) {
-  geometry_msgs::Quaternion Q;
-  Q.x = q.x();
-  Q.y = q.y();
-  Q.z = q.z();
-  Q.w = q.w();
-  return Q;
-}
-
-geometry_msgs::Quaternion setRPY(tfScalar& roll, tfScalar& pitch, tfScalar& yaw) {
-  tf::Quaternion q;
-  q.setRPY(roll, pitch, yaw);
-  return quatConversion(q);
-}
-
-void getRPY(tf::Quaternion q, double& roll, double& pitch, double& yaw) {
-  tf::Matrix3x3 m(q);
-  m.getRPY(roll, pitch, yaw);
-}
-
-void getRPY(geometry_msgs::Quaternion q, double& roll, double& pitch, double& yaw) {
-  tf::Quaternion Q = quatConversion(q);
-  getRPY(Q, roll, pitch, yaw);
-}
-
 void mapTransforms(const tf2_msgs::TFMessage::ConstPtr& msg, std::map<std::string, geometry_msgs::TransformStamped>& transformMap) {
   for (auto x : msg->transforms) {
     transformMap[x.child_frame_id] = x;

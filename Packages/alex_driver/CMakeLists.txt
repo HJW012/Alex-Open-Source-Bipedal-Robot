@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   socketcan_interface
   message_generation
   can_msgs
+  alex_global
 )
 
 ## System dependencies are found with CMake's conventions

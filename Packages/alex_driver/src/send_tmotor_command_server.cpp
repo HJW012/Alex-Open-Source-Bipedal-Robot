@@ -19,16 +19,18 @@
 #include <linux/can.h>
 #include <linux/can/raw.h>
 
-#define P_MIN -12.5f
-#define P_MAX 12.5f
-#define V_MIN -30.0f
-#define V_MAX 30.0f
-#define KP_MIN 0.0f
-#define KP_MAX 500.0f
-#define KD_MIN 0.0f
-#define KD_MAX 5.0f
-#define T_MIN -18.0f
-#define T_MAX 18.0f
+#include <alex_global/global_definitions.h>
+
+// #define P_MIN -12.5f
+// #define P_MAX 12.5f
+// #define V_MIN -30.0f
+// #define V_MAX 30.0f
+// #define KP_MIN 0.0f
+// #define KP_MAX 500.0f
+// #define KD_MIN 0.0f
+// #define KD_MAX 5.0f
+// #define T_MIN -18.0f
+// #define T_MAX 18.0f
 
 int s;
 float p_in = 0.0f;

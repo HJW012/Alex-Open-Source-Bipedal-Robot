@@ -23,10 +23,10 @@ int main(int argc, char** argv)
   //target_left_foot_a.transform.translation.y = 0.2;
   target_left_foot_a.transform.translation.z = -0.4;
 
-  ros::Rate r(10);
+  ros::Rate r(60);
   int circleIndex = 0;
-  int circleSegments = 50;
-  double circleRadius = 0.025;
+  int circleSegments = 200;
+  double circleRadius = 0.05;
 
 while (ros::ok()) {
   sensor_msgs::JointState jointStates;
