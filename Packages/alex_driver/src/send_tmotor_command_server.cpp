@@ -21,17 +21,6 @@
 
 #include <alex_global/global_definitions.h>
 
-// #define P_MIN -12.5f
-// #define P_MAX 12.5f
-// #define V_MIN -30.0f
-// #define V_MAX 30.0f
-// #define KP_MIN 0.0f
-// #define KP_MAX 500.0f
-// #define KD_MIN 0.0f
-// #define KD_MAX 5.0f
-// #define T_MIN -18.0f
-// #define T_MAX 18.0f
-
 int s;
 float p_in = 0.0f;
 float v_in = 0.0f;
@@ -66,7 +55,7 @@ float constrain(float in, float min, float max) {
   return in;
 }
 
-bool  sendTMotorCommand(alex_driver::send_tmotor_command::Request &req, alex_driver::send_tmotor_command::Response &res) {
+bool sendTMotorCommand(alex_driver::send_tmotor_command::Request &req, alex_driver::send_tmotor_command::Response &res) {
   char buf[8];
 
   if (req.motorParamOut.mode == 0) {

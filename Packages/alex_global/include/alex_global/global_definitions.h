@@ -62,3 +62,8 @@ geometry_msgs::Quaternion quatConversion(tf2::Quaternion);
 geometry_msgs::Quaternion setRPY(tf2Scalar&, tf2Scalar&, tf2Scalar&);
 void getRPY(tf2::Quaternion, double&, double&, double&);
 void getRPY(geometry_msgs::Quaternion, double&, double&, double&);
+
+// CAN Functions
+float constrain(float, float, float);
+unsigned int float_to_uint(float, float, float, int);
+float uint_to_float(unsigned int, float, float, int);
