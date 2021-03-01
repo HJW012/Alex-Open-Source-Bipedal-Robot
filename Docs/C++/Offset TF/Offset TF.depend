@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1614575362 source:d:\projects\misc\offset tf\main.cpp
+	<iostream>
+	<string>
+	<map>
+
