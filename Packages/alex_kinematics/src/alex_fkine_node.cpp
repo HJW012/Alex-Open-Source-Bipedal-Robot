@@ -35,9 +35,25 @@ bool legFkine(std::string prefix, std::map<std::string, geometry_msgs::Transform
   double q1 = yaw + q2;
   double localX1 = l_knee_a * cos(q1);
   double localY1 = -l_knee_a * sin(q1);
-
-
+  //std::cout << "Local1: " << localX1 << ", " << localY1 << ", " << 0 << std::endl;
+  //td::cout << "Local2: " << localX2 << ", " << localY2 << ", " << 0 << std::endl;
+  /*eometry_msgs::TransformStamped resultb;
+  geometry_msgs::TransformStamped resulta;
+  Relative_TF_In_Chain(transforms, transforms[prefix + "_shin_link_b"].child_frame_id, "base_link", "base_link", resultb);
+  Relative_TF_In_Chain(transforms, transforms[prefix + "_shin_link_a"].child_frame_id, "base_link", "base_link", resulta);
+  std::cout << "Relative a: " << resulta.transform.translation.x << ", " << resulta.transform.translation.y << ", " << resulta.transform.translation.z << std::endl;
+  std::cout << "Relative b: " << resultb.transform.translation.x << ", " << resultb.transform.translation.y << ", " << resultb.transform.translation.z << std::endl;
+  std::cout << "Relative LR1:  " << distance(resulta.transform.translation.x, resulta.transform.translation.y, resulta.transform.translation.z, resultb.transform.translation.x, resultb.transform.translation.y, resultb.transform.translation.z) << std::endl;
+*/
   double lr1 = distance(localX1, localY1, localX2, localY2);
+  std::cout << "LR1: " << lr1 << std::endl;
+  //geometry_msgs::TransformStamped test = getOffsetTF(transforms[prefix + "_shin_link_b"], transforms[prefix + "_shin_link_a"], transforms);
+  //std::cout << "LR1 using func: " << distance(test.transform.translation.x, test.transform.translation.y, test.transform.translation.z, 0, 0, 0) << std::endl;
+  double lr1TestA;
+  Relative_Distance_In_Tree(transforms, prefix + "_shin_link_b", prefix + "_shin_link_a", "base_link", lr1TestA);
+  std::cout << "LR1a vs LR1TestA: " << lr1 << " vs " << lr1TestA << std::endl;
+
+
   double alpha1 = angleCosineRule(l_knee_a, l_knee_b, lr1);
   double alpha2 = angleCosineRule(l_shin_a, lr1, l_shin_connection);
   double gamma1 = angleCosineRule(lr1, l_knee_b, l_knee_a);
@@ -82,7 +98,23 @@ bool legFkine(std::string prefix, std::map<std::string, geometry_msgs::Transform
   ankle_c_offset.transform.translation.y -= l_ankle_b * sin(yaw + yaw2);
 
   lr1 = distance(left_foot_offset.transform.translation.x, left_foot_offset.transform.translation.y, ankle_b_offset.transform.translation.x, ankle_b_offset.transform.translation.y);
+  double lr1Test;
+  if (Relative_Distance_In_Tree(transforms, prefix + "_ankle_link_b", prefix + "_foot_link_b", "base_link", lr1Test)) {
+    std::cout << "First true" << std::endl;
+  } else {
+    std::cout << "First false" << std::endl;
+
+  }
+  std::cout << "LR1b vs LR1Test: " << lr1 << " vs " << lr1Test << std::endl;
   double lr2 = distance(left_foot_offset.transform.translation.x, left_foot_offset.transform.translation.y, ankle_c_offset.transform.translation.x, ankle_c_offset.transform.translation.y);
+  double lr2Test;
+  if (Relative_Distance_In_Tree(transforms, prefix + "_ankle_link_c_1", prefix + "_foot_link_b", "base_link", lr2Test)) {
+    std::cout << "First true" << std::endl;
+  } else {
+    std::cout << "First false" << std::endl;
+
+  }
+  std::cout << "LR2 vs LR2Test: " << lr2 << " vs " << lr2Test << std::endl;
   alpha1 = angleCosineRule((l_shin_connection - l_ankle_connection) + (l_shin_b - l_shin_connection), l_ankle_a, lr1);
   alpha2 = angleCosineRule(lr2, l_ankle_b, lr1);
   beta1 = angleCosineRule(l_foot_a, (transforms[prefix + "_foot_link_a"].transform.translation.x + transforms[prefix + "_ankle_link_c_2"].transform.translation.x), lr2);

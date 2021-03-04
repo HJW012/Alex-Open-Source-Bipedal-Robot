@@ -331,6 +331,8 @@ bool AlexStatePublisher::fkine(std::vector<geometry_msgs::TransformStamped>& tra
   fkineSrv.request.transforms = transforms;
   fkineClient.call(fkineSrv);
   transforms = fkineSrv.response.transforms;
+
+  return true;
 }
 
 // void lookupTransform(const std::string& target_frame, const std::string& source_frame,
