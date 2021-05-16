@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   message_generation
+  dynamixel_sdk
 )
 
 ## System dependencies are found with CMake's conventions
@@ -50,6 +51,8 @@ find_package(catkin REQUIRED COMPONENTS
  add_message_files(
 	FILES
 	MotorParamOut.msg
+  GetDynamixelParameter.msg
+  SetDynamixelParameter.msg
  )
 
 ## Generate services in the 'srv' folder

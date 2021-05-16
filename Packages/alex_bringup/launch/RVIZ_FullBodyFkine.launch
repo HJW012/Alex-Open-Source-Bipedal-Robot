@@ -1,4 +1,9 @@
 <launch>
+  <rosparam command="load" file="$(find alex_bringup)/config/alex_params.yaml" />
+  <param name="use_tf_static_" value="false"/>
+  <param name="use_tf_static" value="false"/>
+  <arg name="UseRVIZ" default="true"/>
+
 
   <arg name="model" default="$(find alex_description)/urdf/FullBody.urdf.xacro"/>
   <arg name="gui" default="true" />
@@ -7,8 +12,9 @@
 
 
  <node if="$(arg gui)" name="joint_state_publisher" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" />
-  <node unless="$(arg gui)" name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
-  <node name="alex_fkine_node" pkg="alex_kinematics" type="alex_fkine_node" output="screen" required="true" />
-  <node name="alex_state_publisher" pkg="alex_state_publisher" type="alex_state_publisher" output="screen"/>
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true"/>
+    <node unless="$(arg gui)" name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+ <node name="alex_fkine_node" pkg="alex_kinematics" type="alex_fkine_node" output="screen" required="true" />
+ <node name="alex_state_publisher" pkg="alex_state_publisher" type="alex_state_publisher" output="screen"/>
+ <node if="$(arg UseRVIZ)" name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true"/>
+  <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true"/> -->
 </launch>

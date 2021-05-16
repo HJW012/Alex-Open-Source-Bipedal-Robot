@@ -131,7 +131,6 @@ void AlexStatePublisher::publishTransforms(const std::map<std::string, double>& 
     }
   }
 
-
   fkine(transformVector);
   // for (std::map<std::string, geometry_msgs::TransformStamped>::iterator i = transforms.begin(); i != transforms.end(); i++) {
   //   tf_transforms.push_back(i->second);

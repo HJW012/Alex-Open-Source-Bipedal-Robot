@@ -19,6 +19,38 @@
   <xacro:property name="l_foot_a" value="0.055" />
   <xacro:property name="l_foot_b" value="0.055" />
 
+  <!-- Base link to coronal hip -->
+  <xacro:property name="l_base_to_sybolic_hip_yz" value="0.101366" />
+  <xacro:property name="o_base_to_symbolic_hip_y" value="0.084011" />
+  <xacro:property name="o_base_to_symbolic_hip_z" value="-0.056722" />
+
+  <!-- Coronal Hip - Side to Side hip movement -->
+  <xacro:property name="l_symbolic_hip_to_coronal_hip_rotor" value="0.0338" />
+  <xacro:property name="l_coronal_hip_torque_arm" value="0.046803" />
+  <xacro:property name="l_coronal_hip_torque_arm_to_coronal_hip_push_point" value="0.043656" />
+  <xacro:property name="l_coronal_hip_push_point_to_coronal_hip_pivot" value="0.067801" />
+  <xacro:property name="l_symbolic_hip_to_coronal_hip_pivot" value="0.068139" />
+  <xacro:property name="o_symbolic_hip_to_coronal_hip_pivot_z" value="-0.066081" />
+  <xacro:property name="o_symbolic_hip_to_coronal_hip_pivot_y" value="0.016618" />
+  <xacro:property name="l_coronal_hip_pivot_to_sagittal_hip_pivot" value="0.059613" />
+  <xacro:property name="o_coronal_hip_pivot_to_sagittal_hip_pivot_y" value="0.002471" />
+  <xacro:property name="o_coronal_hip_pivot_to_sagittal_hip_pivot_z" value="-0.059561" />
+
+  <!-- Sagital Hip - Forward to Back hip movement -->
+  <xacro:property name="l_thigh_a" value="0.100" />
+  <xacro:property name="l_thigh_b" value="0.300" />
+  <xacro:property name="l_shin_a" value="0.3206" />
+  <xacro:property name="l_shin_b" value="0.275" />
+  <xacro:property name="l_knee_b_to_ankle_connection" value="0.07475" />
+  <xacro:property name="l_knee_b_to_shin_connection" value="0.070" />
+
+  <!-- Ankle -->
+  <xacro:property name="l_ankle_connection_to_ankle_rotor" value="0.02735" />
+  <xacro:property name="l_ankle_torque_arm" value="0.0432" />
+  <xacro:property name="l_ankle_linear_actuator_a" value="0.1493" />
+  <xacro:property name="l_ankle_linear_actuator_b" value="0.155795" />
+  <xacro:property name="l_linear_actuator_b_to_shin_b" value="0.055" />
+
   <material name="red">
     <color rgba="1 0 0 1"/>
   </material>
@@ -46,6 +78,202 @@
   <material name="white">
     <color rgba="1 1 1 1"/>
   </material>
+
+  <xacro:macro name="leg2" params="prefix reflect">
+    <!-- HIP -->
+    <link name="${prefix}_symbolic_hip_link"/>
+    <joint name="base_link_to_${prefix}_symbolic_hip_a" type="continuous">
+      <parent link="base_link"/>
+      <child link="${prefix}_symbolic_hip_link"/>
+      <axis rpy="0 0 0" xyz="0 0 1"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </joint>
+
+    <link name="${prefix}_symbolic_hip_to_coronal_hip_rotor_link">
+      <visual>
+        <geometry>
+          <cylinder length="${l_symbolic_hip_to_coronal_hip_rotor}" radius="0.003"/>
+        </geometry>
+        <origin rpy="0 ${pi/2} 0" xyz="${l_symbolic_hip_to_coronal_hip_rotor/2} 0 0"/>
+        <material name="blue"/>
+      </visual>
+    </link>
+    <joint name="${prefix}_symbolic_hip_to_coronal_hip_rotor" type="continuous">
+      <parent link="${prefix}_symbolic_hip_link"/>
+      <child link="${prefix}_symbolic_hip_to_coronal_hip_rotor_link"/>
+      <axis rpy="0 0 0" xyz="0 0 1"/>
+      <origin rpy="${pi/2} 0 ${reflect * pi/2}" xyz="0 ${reflect * o_base_to_symbolic_hip_y} ${o_base_to_symbolic_hip_z}"/>
+    </joint>
+
+    <link name="${prefix}_coronal_hip_torque_arm_link">
+      <visual>
+        <geometry>
+          <cylinder length="${l_coronal_hip_torque_arm}" radius="0.003"/>
+        </geometry>
+        <origin rpy="0 ${pi/2} 0" xyz="${l_coronal_hip_torque_arm/2} 0 0"/>
+        <material name="blue"/>
+      </visual>
+    </link>
+    <joint name="${prefix}_coronal_hip_rotor_to_coronal_hip_torque_arm" type="continuous">
+      <parent link="${prefix}_symbolic_hip_to_coronal_hip_rotor_link"/>
+      <child link="${prefix}_coronal_hip_torque_arm_link"/>
+      <axis rpy="0 0 0" xyz="0 0 1"/>
+      <origin rpy="0 0 0" xyz="${l_symbolic_hip_to_coronal_hip_rotor} 0 0"/>
+    </joint>
+
+    <link name="${prefix}_coronal_hip_pusher_link">
+      <visual>
+        <geometry>
+          <cylinder length="${l_coronal_hip_torque_arm_to_coronal_hip_push_point}" radius="0.003"/>
+        </geometry>
+        <origin rpy="0 ${pi/2} 0" xyz="${l_coronal_hip_torque_arm_to_coronal_hip_push_point/2} 0 0"/>
+        <material name="blue"/>
+      </visual>
+    </link>
+    <joint name="${prefix}_coronal_hip_torque_arm_to_coronal_hip_pusher" type="continuous">
+      <parent link="${prefix}_coronal_hip_torque_arm_link"/>
+      <child link="${prefix}_coronal_hip_pusher_link"/>
+      <axis rpy="0 0 0" xyz="0 0 1"/>
+      <origin rpy="0 0 ${-pi/2}" xyz="${l_coronal_hip_torque_arm} 0 0"/>
+    </joint>
+
+    <link name="${prefix}_coronal_hip_pusher_to_coronal_hip_pivot_link">
+      <visual>
+        <geometry>
+          <cylinder length="${l_coronal_hip_push_point_to_coronal_hip_pivot}" radius="0.003"/>
+        </geometry>
+        <origin rpy="0 ${pi/2} 0" xyz="${l_coronal_hip_push_point_to_coronal_hip_pivot/2} 0 0"/>
+        <material name="blue"/>
+      </visual>
+    </link>
+    <joint name="${prefix}_coronal_hip_pusher_to_coronal_hip_pivot" type="continuous">
+      <parent link="${prefix}_coronal_hip_pusher_link"/>
+      <child link="${prefix}_coronal_hip_pusher_to_coronal_hip_pivot_link"/>
+      <axis rpy="0 0 0" xyz="0 0 1"/>
+      <origin rpy="0 0 ${-pi/2}" xyz="${l_coronal_hip_torque_arm_to_coronal_hip_push_point} 0 0"/>
+    </joint>
+
+    <!--
+    <link name="${prefix}_symbolic_hip_to_coronal_hip_pivot_link">
+      <visual>
+        <geometry>
+          <cylinder length="${l_coronal_hip_push_point_to_coronal_hip_pivot}" radius="0.003"/>
+        </geometry>
+        <origin rpy="0 ${pi/2} 0" xyz="${l_coronal_hip_push_point_to_coronal_hip_pivot/2} 0 0"/>
+        <material name="blue"/>
+      </visual>
+    </link>
+    <joint name="${prefix}_symbolic_hip_to_coronal_hip_pivot" type="continuous">
+      <parent link="${prefix}_symbolic_hip_to_coronal_hip_rotor_link"/>
+      <child link="${prefix}_symbolic_hip_to_coronal_hip_pivot_link"/>
+      <axis rpy="0 0 0" xyz="0 0 1"/>
+      <origin rpy="0 0 ${-pi/2 + reflect * (14.116*pi/180)}" xyz="0 0 0"/>
+    </joint>
+  -->
+    <!-- Sagital Hip, Thigh, and Shin -->
+    <link name="${prefix}_coronal_hip_pivot_to_sagittal_hip_pivot_link">
+      <visual>
+        <geometry>
+          <cylinder length="${o_coronal_hip_pivot_to_sagittal_hip_pivot_z}" radius="0.003"/>
+        </geometry>
+        <origin rpy="0 ${pi/2} 0" xyz="${-o_coronal_hip_pivot_to_sagittal_hip_pivot_z/2} 0 0"/>
+        <material name="blue"/>
+      </visual>
+    </link>
+    <joint name="${prefix}_corronal_hip_pivot_to_sagittal_pivot" type="continuous">
+      <parent link="${prefix}_symbolic_hip_to_coronal_hip_rotor_link"/>
+      <child link="${prefix}_coronal_hip_pivot_to_sagittal_hip_pivot_link"/>
+      <axis rpy="0 0 0" xyz="0 0 1"/>
+      <origin rpy="0 0 ${-pi/2}" xyz="${o_symbolic_hip_to_coronal_hip_pivot_y} ${o_symbolic_hip_to_coronal_hip_pivot_z} 0"/>
+    </joint>
+
+    <!-- Symbolic joint to avoid RPY on saggital pivot -->
+    <link name="${prefix}_symbolic_sagittal_hip_pivot_link">
+    </link>
+    <joint name="${prefix}_symbolic_sagittal_hip_pivot" type="continuous">
+      <parent link="${prefix}_coronal_hip_pivot_to_sagittal_hip_pivot_link"/>
+      <child link="${prefix}_symbolic_sagittal_hip_pivot_link"/>
+      <axis rpy="0 0 0" xyz="0 0 1"/>
+      <origin rpy="${reflect * pi/2} 0 0" xyz="0 0 0"/>
+    </joint>
+
+    <!-- Chain b -->
+    <link name="${prefix}_thigh_b_link">
+      <visual>
+        <geometry>
+          <cylinder length="${l_thigh_b}" radius="0.003"/>
+        </geometry>
+        <origin rpy="0 ${pi/2} 0" xyz="${l_thigh_b/2} 0 0"/>
+        <material name="blue"/>
+      </visual>
+    </link>
+    <joint name="${prefix}_sagittal_hip_pivot_to_thigh_b" type="continuous">
+      <parent link="${prefix}_symbolic_sagittal_hip_pivot_link"/>
+      <child link="${prefix}_thigh_b_link"/>
+      <axis rpy="0 0 0" xyz="0 0 1"/>
+      <origin rpy="0 0 ${-pi/4}" xyz="${-o_coronal_hip_pivot_to_sagittal_hip_pivot_z} 0 ${reflect * o_coronal_hip_pivot_to_sagittal_hip_pivot_y}"/>
+    </joint>
+
+    <link name="${prefix}_shin_b_link">
+      <visual>
+        <geometry>
+          <cylinder length="${l_shin_b}" radius="0.003"/>
+        </geometry>
+        <origin rpy="0 ${pi/2} 0" xyz="${l_shin_b/2} 0 0"/>
+        <material name="blue"/>
+      </visual>
+    </link>
+    <joint name="${prefix}_thigh_b_to_shin_b" type="continuous">
+      <parent link="${prefix}_thigh_b_link"/>
+      <child link="${prefix}_shin_b_link"/>
+      <axis rpy="0 0 0" xyz="0 0 1"/>
+      <origin rpy="0 0 ${pi/2}" xyz="${l_thigh_b} 0 0"/>
+    </joint>
+
+    <!-- Chain a -->
+    <link name="${prefix}_thigh_a_link">
+      <visual>
+        <geometry>
+          <cylinder length="${l_thigh_a}" radius="0.003"/>
+        </geometry>
+        <origin rpy="0 ${pi/2} 0" xyz="${l_thigh_a/2} 0 0"/>
+        <material name="blue"/>
+      </visual>
+    </link>
+    <joint name="${prefix}_thigh_b_to_thigh_a" type="continuous">
+      <parent link="${prefix}_thigh_b_link"/>
+      <child link="${prefix}_thigh_a_link"/>
+      <axis rpy="0 0 0" xyz="0 0 1"/>
+      <origin rpy="0 0 ${pi/2}" xyz="0 0 0"/>
+    </joint>
+
+    <link name="${prefix}_shin_a_link">
+      <visual>
+        <geometry>
+          <cylinder length="${l_shin_a}" radius="0.003"/>
+        </geometry>
+        <origin rpy="0 ${pi/2} 0" xyz="${l_shin_a/2} 0 0"/>
+        <material name="blue"/>
+      </visual>
+    </link>
+    <joint name="${prefix}_thigh_a_to_shin_a" type="continuous">
+      <parent link="${prefix}_thigh_a_link"/>
+      <child link="${prefix}_shin_a_link"/>
+      <axis rpy="0 0 0" xyz="0 0 1"/>
+      <origin rpy="0 0 ${-pi/2}" xyz="${l_thigh_a} 0 0"/>
+    </joint>
+
+    <!-- Ankle -->
+  </xacro:macro>
+
+
+
+
+
+
+
+
+
 
   <xacro:macro name="leg" params="prefix reflect">
     <link name="${prefix}_hip_link">
@@ -239,10 +467,9 @@
 
 
 
-  <link name="base_link">
-  </link>
-  <xacro:leg prefix="right" reflect="1" />
-  <xacro:leg prefix="left" reflect="-1" />
+  <link name="base_link"/>
+  <xacro:leg2 prefix="right" reflect="-1" />
+  <xacro:leg2 prefix="left" reflect="1" />
 
 
 

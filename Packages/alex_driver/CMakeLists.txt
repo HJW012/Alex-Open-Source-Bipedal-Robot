@@ -16,6 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   can_msgs
   alex_global
+  dynamixel_sdk
 )
 
 ## System dependencies are found with CMake's conventions
@@ -62,6 +63,8 @@ find_package(catkin REQUIRED COMPONENTS
 add_service_files(
    FILES
    send_tmotor_command.srv
+   Get_Dynamixel_Parameter.srv
+   Set_Dynamixel_Parameter.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -156,8 +159,11 @@ include_directories(
 
 add_executable(send_tmotor_command_node src/send_tmotor_command_server.cpp)
 add_executable(receive_tmotor_reply_node src/receive_tmotor_reply_node.cpp)
+add_executable(dynamixel_command_node src/dynamixel_command_server.cpp)
 add_dependencies(send_tmotor_command_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(receive_tmotor_reply_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(dynamixel_command_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
 
 
 target_link_libraries(send_tmotor_command_node
@@ -165,6 +171,10 @@ target_link_libraries(send_tmotor_command_node
 )
 
 target_link_libraries(receive_tmotor_reply_node
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(dynamixel_command_node
   ${catkin_LIBRARIES}
 )
 

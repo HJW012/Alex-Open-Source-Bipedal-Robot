@@ -63,7 +63,7 @@ bool Relative_TF_In_Chain(std::map<std::string, geometry_msgs::TransformStamped>
   geometry_msgs::TransformStamped currentTF;
   std::vector<geometry_msgs::TransformStamped> chain;
 
-  // Check if parentName id baseName
+  // Check if parentName is baseName
   if (parentName == baseName) {
     relativeFromBase = true;
   }
@@ -78,7 +78,7 @@ bool Relative_TF_In_Chain(std::map<std::string, geometry_msgs::TransformStamped>
     // ParentTF doesn't exist
     return false;
   }
-  
+
   // Check if TFs are in a chain
   currentTF = transformMap[childName];
   while (transformMap.find(currentTF.child_frame_id) != transformMap.end()) {
@@ -116,7 +116,7 @@ bool Relative_TF_In_Chain(std::map<std::string, geometry_msgs::TransformStamped>
   // tf2::Quaternion runningQuaternion = quatConversion(chain.at(0).transform.rotation);
   // tf2::Vector3 runningVector = quatRotate(runningQuaternion, vector3Conversion(chain.at(1).transform.translation));
   tf2::Quaternion runningQuaternion(0, 0, 0, 1);
-  tf2::Vector3 runningVector;
+  tf2::Vector3 runningVector(0, 0, 0);
 
   for (int i = 0; i < chain.size() - 1; i++) {
     runningQuaternion = rotAdd(runningQuaternion, quatConversion(chain.at(i).transform.rotation));
@@ -128,11 +128,22 @@ bool Relative_TF_In_Chain(std::map<std::string, geometry_msgs::TransformStamped>
   return true;
 }
 
+bool Relative_Quaternion_In_Chain(std::map<std::string, geometry_msgs::TransformStamped> transformMap, std::string childName, std::string parentName, std::string baseName, geometry_msgs::Quaternion & resultQuaternion) {
+
+}
+
+
 // General Functions
 double distance(double x1, double y1, double x2, double y2) {
   double dist = abs(sqrt(pow((x1 - x2), 2) + pow(y1 - y2, 2)));
   return dist;
 }
+
+void quadraticFormula(double a, double b, double c, std::vector<double> & x) {
+  x.push_back((-b + sqrt(pow(b, 2) - 4 * a * c)) / 2 * a);
+  x.push_back((-b - sqrt(pow(b, 2) - 4 * a * c)) / 2 * a);
+}
+
 
 double distance(double x1, double y1, double z1, double x2, double y2, double z2) {
   double dist = abs(sqrt(pow((x1 - x2), 2) + pow(y1 - y2, 2) + pow(z1 - z2, 2)));
@@ -235,4 +246,33 @@ float uint_to_float(unsigned int x_int, float x_min, float x_max, int bits) {
     pgg = ((float) x_int) * span / 65535.0 + offset;
   }
   return pgg;
+}
+
+bool getRosParams(ros::NodeHandle nh) {
+  bool paramsExist = true;
+  // legs
+  paramsExist &= nh.getParam("legs/leftLeg/Enabled", leftLeg.Enabled);
+  paramsExist &= nh.getParam("legs/leftLeg/M1Enabled", leftLeg.M1.Enabled);
+  paramsExist &= nh.getParam("legs/leftLeg/M2Enabled", leftLeg.M2.Enabled);
+  paramsExist &= nh.getParam("legs/leftLeg/M3Enabled", leftLeg.M3.Enabled);
+  paramsExist &= nh.getParam("legs/leftLeg/M1ID", leftLeg.M1.ID);
+  paramsExist &= nh.getParam("legs/leftLeg/M2ID", leftLeg.M2.ID);
+  paramsExist &= nh.getParam("legs/leftLeg/M3ID", leftLeg.M3.ID);
+
+  paramsExist &= nh.getParam("legs/rightLeg/Enabled", rightLeg.Enabled);
+  paramsExist &= nh.getParam("legs/rightLeg/M1Enabled", rightLeg.M1.Enabled);
+  paramsExist &= nh.getParam("legs/rightLeg/M2Enabled", rightLeg.M2.Enabled);
+  paramsExist &= nh.getParam("legs/rightLeg/M3Enabled", rightLeg.M3.Enabled);
+  paramsExist &= nh.getParam("legs/rightLeg/M1ID", rightLeg.M1.ID);
+  paramsExist &= nh.getParam("legs/rightLeg/M2ID", rightLeg.M2.ID);
+  paramsExist &= nh.getParam("legs/rightLeg/M3ID", rightLeg.M3.ID);
+
+  // system
+  paramsExist &= nh.getParam("system/UseMPU6050", systemSettings.UseMPU6050);
+  paramsExist &= nh.getParam("system/UseORIENTUS", systemSettings.UseORIENTUS);
+  paramsExist &= nh.getParam("system/AverageIMU", systemSettings.AverageIMU);
+  paramsExist &= nh.getParam("system/IMUID1", systemSettings.IMUID1);
+  paramsExist &= nh.getParam("system/IMUID2", systemSettings.IMUID2);
+
+  return paramsExist;
 }

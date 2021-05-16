@@ -38,6 +38,7 @@ geometry_msgs::Quaternion quatConversion(tf2::Quaternion);
 bool ikine(alex_kinematics::alex_ikine::Request &req, alex_kinematics::alex_ikine::Response &res);
 bool legIkine(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>& transforms);
 bool hipIkine(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>& transforms, std::map<std::string, geometry_msgs::TransformStamped>& mappedTransforms);
+bool hipIkine2(std::string side, geometry_msgs::TransformStamped target, std::map<std::string, geometry_msgs::TransformStamped>& transformMap);
 bool kneeIkine(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>& transforms, std::map<std::string, geometry_msgs::TransformStamped>& mappedTransforms);
 bool ankleIkine(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>& transforms, std::map<std::string, geometry_msgs::TransformStamped>& mappedTransforms);
 geometry_msgs::TransformStamped getRelativeTransform(geometry_msgs::TransformStamped targetTF, geometry_msgs::TransformStamped parentTF);
@@ -65,18 +66,7 @@ std::map<std::string, geometry_msgs::TransformStamped> transformMap;
 
 
 
-bool ikine(alex_kinematics::alex_ikine::Request &req, alex_kinematics::alex_ikine::Response &res) {
-  jointStates.name.clear();
-  jointStates.position.clear();
-  std::map<std::string, geometry_msgs::TransformStamped> transforms;
-  for (auto x : req.footTransforms) {
-    transforms[x.child_frame_id] = x;
-  }
-  legIkine("left", transforms);
-  //legIkine("right", transforms);
-  res.jointStates = jointStates;
-  return true;
-}
+
 
 bool legIkine(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>& transforms) {
   std::map<std::string, geometry_msgs::TransformStamped> mappedTransforms = transforms;
@@ -84,7 +74,7 @@ bool legIkine(std::string prefix, std::map<std::string, geometry_msgs::Transform
   kneeIkine(prefix, transforms, mappedTransforms);
   //ankleIkine(prefix, transforms, mappedTransforms);
   // foot transforms are relative to hips
-
+  return true;
 }
 
 //Ikine for hip joint angles and to map foot coords - must be performed before knee ikine.
@@ -121,6 +111,83 @@ bool hipIkine(std::string prefix, std::map<std::string, geometry_msgs::Transform
   //jointStates.position.push_back(hipJointAngle);
 
   mappedTransforms = transforms;
+  return true;
+}
+
+bool hipIkine2(std::string side, geometry_msgs::TransformStamped target, std::map<std::string, geometry_msgs::TransformStamped>& transformMap) {
+  geometry_msgs::TransformStamped tempP4;
+  geometry_msgs::TransformStamped tempP0;
+  Relative_TF_In_Chain(transformMap, side + "_coronal_hip_pivot_to_sagittal_hip_pivot_link", "base_link", "base_link", tempP4);
+  Relative_TF_In_Chain(transformMap, side + "_symbolic_hip_to_coronal_hip_rotor_link", "base_link", "base_link", tempP0);
+  double lr1 = distance(target, tempP4);
+  double o_coronal_hip_pivot_to_sagittal_hip_pivot_y = 0.002471; //known and needs to be a param
+  double alpha2 = 89 * M_PI/180; //known and needs to be a param
+  std::vector<double> l2Vec;
+
+  quadraticFormula(1, -(2 * o_coronal_hip_pivot_to_sagittal_hip_pivot_y * cos(alpha2)), (o_coronal_hip_pivot_to_sagittal_hip_pivot_y - pow(lr1, 2)), l2Vec);
+
+  double l2;
+  if (l2Vec.at(0) < 0) {
+    l2 = l2Vec.at(1);
+  } else {
+    l2 = l2Vec.at(0);
+  }
+  std::cout << "l2: " << l2 << std::endl;
+
+  double sigma3 = 199.314 * M_PI/180;
+  std::cout << "o_coronal_hip_pivot_to_sagittal_hip_pivot_y ^ 2: " << pow(o_coronal_hip_pivot_to_sagittal_hip_pivot_y, 2) << std::endl;
+  std::cout << "TEST: " << angleCosineRule(0.383481, 0.0025, 0.386727) << std::endl;
+  double alpha1;
+  alpha1 = angleCosineRule(l2, lr1, o_coronal_hip_pivot_to_sagittal_hip_pivot_y);
+  double beta1 = sigma3 - alpha1;
+  double l3 = 0.067801;
+  double lr3 = sideCosineRule(l3, lr1, beta1);
+  double sigma1;
+  if (target.transform.translation.y > tempP4.transform.translation.y) {
+    sigma1 = abs(atan((tempP4.transform.translation.z - target.transform.translation.z)/(tempP4.transform.translation.y - target.transform.translation.y)));
+  } else {
+    sigma1 = M_PI - abs(atan((tempP4.transform.translation.z - target.transform.translation.z)/(tempP4.transform.translation.y - target.transform.translation.y)));
+  }
+
+  double beta3 = angleCosineRule(l3, lr3, lr1);
+  geometry_msgs::TransformStamped tempP3;
+  tempP3.transform.translation.y = target.transform.translation.y + lr3 * cos(sigma1 + beta3);
+  tempP3.transform.translation.z = target.transform.translation.z - lr3 * sin(sigma1 + beta3);
+  geometry_msgs::TransformStamped tempP1;
+  Relative_TF_In_Chain(transformMap, side + "_coronal_hip_torque_arm_link", "base_link", "base_link", tempP1);
+
+  double lr4 = distance(tempP3, tempP1);
+  double l5 = 0.046803;
+  double l4 = 0.043656;
+  double omega1 = angleCosineRule(l4, l5, lr4);
+  double lr5 = distance(tempP1, tempP4);
+  double gamma1 = angleCosineRule(l3, lr4, lr5);
+  double l6 = 0.0338;
+  double l7 = 0.068139;
+  double delta1 = angleCosineRule(l7, l6, lr5);
+  double theta = (omega1 + gamma1 + delta1) - M_PI;
+  std::cout << "Hip Servo Angle: " << theta << std::endl;
+  jointStates.name.push_back("temp");
+  // jointStates.name.push_back(prefix + "_knee_link_b_to_" + prefix + "_knee_link_a");
+  jointStates.position.push_back(-(0.1));
+  // jointStates.position.push_back(q1 - o_knee_a + q2_offset);
+  std::cout << "lr1: " << lr1 << std::endl;
+  std::cout << "sigma3: " << sigma3 << std::endl;
+  std::cout << "alpha1: " << alpha1 << std::endl;
+  std::cout << "beta1: " << beta1 << std::endl;
+  std::cout << "lr3: " << lr3 << std::endl;
+  std::cout << "sigma1: " << sigma1 << std::endl;
+  std::cout << "beta3: " << beta3 << std::endl;
+  std::cout << "l5: " << l5 << std::endl;
+  std::cout << "l4: " << l4 << std::endl;
+  std::cout << "omega1: " << omega1 << std::endl;
+  std::cout << "lr4: " << lr4 << std::endl;
+  std::cout << "lr5: " << lr5 << std::endl;
+  std::cout << "gamma1: " << gamma1 << std::endl;
+  std::cout << "delta1: " << delta1 << std::endl;
+  std::cout << "theta: " << theta << std::endl;
+
+  return true;
 }
 
 //Ikine for knee joint angles - must be performed after hip ikine with mapped foot coords
@@ -155,7 +222,7 @@ bool kneeIkine(std::string prefix, std::map<std::string, geometry_msgs::Transfor
   jointStates.name.push_back(prefix + "_knee_link_b_to_" + prefix + "_knee_link_a");
   jointStates.position.push_back(-(o_knee_b - q2));
   jointStates.position.push_back(q1 - o_knee_a + q2_offset);
-  std::cout << "lr1: " << lr1 << std::endl;
+  /*std::cout << "lr1: " << lr1 << std::endl;
   std::cout << "alpha: " << alpha << std::endl;
   std::cout << "lr2: " << lr2 << std::endl;
   std::cout << "beta: " << beta << std::endl;
@@ -171,12 +238,13 @@ bool kneeIkine(std::string prefix, std::map<std::string, geometry_msgs::Transfor
   std::cout << "Knee A Angle: " << (sigma + iota - gamma) * 180 / M_PI << " deg" << std::endl;
   std::cout << "Knee B Angle: " << (sigma + iota) * 180 / M_PI << " deg" << std::endl;
   std::cout << "Q1: " << (q1) * 180 / M_PI << " deg" << std::endl;
-  std::cout << "Q2: " << (q2) * 180 / M_PI << " deg" << std::endl;
+  std::cout << "Q2: " << (q2) * 180 / M_PI << " deg" << std::endl;*/
+  return true;
 }
 
 // Ikine for ankle - must be performed after hip and knee ikine with mapped foot coords
 bool ankleIkine(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>& transforms, std::map<std::string, geometry_msgs::TransformStamped>& mappedTransforms) {
-
+  return true;
 }
 
 bool getURDFTree(ros::NodeHandle& n, std::map<std::string, geometry_msgs::TransformStamped>& modelTree) {
@@ -193,6 +261,7 @@ bool getURDFTree(ros::NodeHandle& n, std::map<std::string, geometry_msgs::Transf
 
   addChildren(tree.getRootSegment());
   mapTransforms(transformMap);
+  return true;
 }
 
 void addChildren(const KDL::SegmentMap::const_iterator segment) {
@@ -238,6 +307,27 @@ std::string stripSlash(const std::string & in) {
     return in.substr(1);
   }
   return in;
+}
+
+bool ikine(alex_kinematics::alex_ikine::Request &req, alex_kinematics::alex_ikine::Response &res) {
+  std::cout << "noe" << std::endl;
+  std::vector<geometry_msgs::TransformStamped> targets;
+  for (auto x : req.footTransforms) {
+    targets.push_back(x);
+  }
+
+  // legIkine("left", transforms);
+  std::cout << "noe 2" << std::endl;
+  std::cout << transformMap.size() << std::endl;
+  std::string side = "left";
+
+  hipIkine2("left", targets.at(0), transformMap);
+  // hipIkine2(side, geometry_msgs::TransformStamped target, std::map<std::string, geometry_msgs::TransformStamped>& transformMap);
+  //legIkine("right", transforms);
+  //res.jointStates = jointStates;
+  std::cout << "noe 3" << std::endl;
+
+  return true;
 }
 
 int main(int argc, char **argv) {

@@ -29,9 +29,9 @@ JointStateListener::JointStateListener(const std::shared_ptr<AlexStatePublisher>
 
   // set publish frequency
   double publish_freq;
-  n_tilde.param("publish_frequency", publish_freq, 50.0);
+  n_tilde.param("publish_frequency", publish_freq, 10.0);
   // set whether to use the /tf_static latched static transform broadcaster
-  n_tilde.param("use_tf_static", use_tf_static_, true);
+  n_tilde.param("use_tf_static", use_tf_static_, false);
   // ignore_timestamp_ == true, joins_states messages are accepted, no matter their timestamp
   n_tilde.param("ignore_timestamp", ignore_timestamp_, false);
   // get the tf_prefix parameter from the closest namespace
@@ -43,7 +43,7 @@ JointStateListener::JointStateListener(const std::shared_ptr<AlexStatePublisher>
   ros::TransportHints transport_hints;
   transport_hints.tcpNoDelay(true);
   // subscribe to joint state
-  joint_state_sub_ = n.subscribe("joint_states", 1, &JointStateListener::callbackJointState, this, transport_hints);
+  joint_state_sub_ = n.subscribe("joint_states", 1000, &JointStateListener::callbackJointState, this, transport_hints);
 
   // trigger to publish fixed joints
   // if using static transform broadcaster, this will be a oneshot trigger and only run once
