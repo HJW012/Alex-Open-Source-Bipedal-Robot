@@ -1,0 +1,17 @@
+<launch>
+  <rosparam command="load" file="$(find alex_bringup)/config/alex_params.yaml" />
+  <arg name="UseRVIZ" default="true"/>
+
+
+  <arg name="model" default="$(find alex_description)/urdf/FullBody.urdf.xacro"/>
+  <arg name="gui" default="true" />
+  <arg name="rvizconfig" default="$(find alex_description)/rviz/urdf.rviz" />
+  <param name="robot_description" command="$(find xacro)/xacro $(arg model)" />
+
+
+ <node if="$(arg gui)" name="joint_state_publisher" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" />
+    <node unless="$(arg gui)" name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+ <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" output="screen"/>
+ <node if="$(arg UseRVIZ)" name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true"/>
+  <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true"/> -->
+</launch>

@@ -1,0 +1,108 @@
+legs: {
+  leftLeg:  { Enabled: true,
+              M1Enabled: true,
+              M2Enabled: true,
+              M3Enabled: true,
+              M1ID: 3,
+              M2ID: 4,
+              M3ID: 1
+              },
+  rightLeg: { Enabled: false,
+              M1Enabled: true,
+              M2Enabled: true,
+              M3Enabled: true,
+              M1ID: 5,
+              M2ID: 6,
+              M3ID: 2
+              },
+  limbLengthsSS: { o_base_to_hip_x: 0,
+                 o_base_to_hip_y: -0.5,
+                 o_base_to_hip_z: -0.1,
+                 o_hip_to_knee_x: 0.1,
+                 o_hip_to_knee_y: 0.1,
+                 o_hip_to_knee_z: 0.1,
+                 l_knee_a: 0.1,
+                 l_knee_b: 0.3,
+                 l_shin_a: 0.309,
+                 l_shin_b: 0.305,
+                 l_shin_connection: 0.115,
+                 l_ankle_connection: 0.07475,
+                 l_ankle_a: 0.02735,
+                 l_ankle_b: 0.0432,
+                 l_ankle_c1: 0.1493,
+                 l_ankle_c2: 0.155795,
+                 l_foot_a: 0.055,
+                 l_foot_b: 0.055
+                 },
+                 # Robot base link connects to leg hip link - this is not a visible joint, this symbolic joint located in the mirrored servo rotor position
+                 # This symbolic joint is parent to motor rotor as well as hip tilt joint
+                 # Base linke has x forward, z up, y left
+                 # All lengths/offsets are in reference to left leg - hip must be mirrored for right leg
+                 # Offsets axes are global axes ie offset_x is an offset in the base_link x axis, not the specific tf x axis
+
+    limbLengths: {
+                    # Base link to coronal hip
+                    l_base_to_sybolic_hip_yz: 0.101366, #Probably wont use
+                    o_base_to_symbolic_hip_y: 0.084011,
+                    o_base_to_symbolic_hip_z: -0.056722,
+                    a_base_to_symbolic_hip: 145.974,
+
+                    # Coronal Hip
+                    # Side to side hip movement
+                    l_symbolic_hip_to_coronal_hip_rotor: 0.0338,
+                    l_coronal_hip_torque_arm: 0.046803,
+                    l_coronal_hip_torque_arm_to_coronal_hip_push_point: 0.043656,
+                    l_coronal_hip_push_point_to_coronal_hip_pivot: 0.067801,
+                    l_symbolic_hip_to_coronal_hip_pivot: 0.068139,
+                    o_symbolic_hip_to_coronal_hip_pivot_z: -0.066081,
+                    o_symbolic_hip_to_coronal_hip_pivot_y: 0.01619,
+                    l_coronal_hip_pivot_to_sagittal_hip_pivot: 0.059613, #Probably wont use
+                    o_coronal_hip_pivot_to_sagittal_hip_pivot_y: 0.0025,
+                    o_coronal_hip_pivot_to_sagittal_hip_pivot_z: -0.059561,
+
+                    # Sagittal Hip
+                    # Forward to back hip movement
+                    a_coronal_hip_pivot_to_sagital_hip_pivot: 0.3370928917,
+                    l_thigh_a: 0.100,
+                    l_thigh_b: 0.300, # This is currently wrong due to slight misaignment in model
+                    l_shin_a: 0.3206,
+                    l_shin_b: 0.275,
+                    l_knee_b_to_ankle_connection: 0.07475,
+                    l_knee_b_to_shin_connection: 0.070,
+
+                    # Ankle
+                    l_ankle_connection_to_ankle_rotor: 0.02735,
+                    l_ankle_torque_arm: 0.0432,
+                    l_ankle_linear_actuator_a: 0.1493,
+                    l_ankle_linear_actuator_b: 0.155795,
+                    l_linear_actuator_b_to_shin_b: 0.055
+                  }
+}
+
+comms: {
+  RS485: { BaudRate: 57600,
+           DeviceName: "/dev/ttyUSB0",
+           ProtocolVersion: 2.0
+          },
+  CAN: {
+
+        }
+}
+
+system: { UseMPU6050: true,
+          UseORIENTUS: false,
+          AverageIMU: false,
+          IMUID1: 1,
+          IMUID2: 2,
+          UseRVIZ: true,
+          UseFKINEGUI: true,
+          UseIKINEGUI: false,
+          PublishFrequency: 30
+         }
+
+tests: { HopTestEnabled: false,
+         WalkGaitEnabled: false,
+         LegTeleopEnabled: false,
+
+
+        }
