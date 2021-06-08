@@ -18,7 +18,6 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   tf2_kdl
   tf2_ros
-  alex_kinematics
   alex_global
 )
 find_package(Eigen3 REQUIRED)
@@ -28,7 +27,6 @@ find_package(urdfdom_headers REQUIRED)
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 find_package(catkin REQUIRED COMPONENTS
-  alex_kinematics
   kdl_parser
   orocos_kdl
   roscpp

@@ -65,6 +65,7 @@ add_service_files(
    send_tmotor_command.srv
    Get_Dynamixel_Parameter.srv
    Set_Dynamixel_Parameter.srv
+   send_can.srv
 )
 
 ## Generate actions in the 'action' folder

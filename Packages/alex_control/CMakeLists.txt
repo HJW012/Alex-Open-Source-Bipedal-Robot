@@ -7,16 +7,7 @@ project(alex_control)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS
-  roscpp
-  std_msgs
-  alex_driver
-  tf2_msgs
-  alex_msgs
-  can_msgs
-  alex_global
-  sensor_msgs
-)
+
 
 ## System dependencies are found with CMake's conventions
 find_package(catkin REQUIRED COMPONENTS
@@ -26,7 +17,7 @@ alex_driver
 tf2_msgs
 alex_msgs
 can_msgs
-tf2_ros
+##tf2_ros
 alex_global
 sensor_msgs
       )

@@ -1,12 +1,6 @@
 #include <alex_global/global_definitions.h>
 
 // Kinematic Functions
-void fkine();
-void legFkine();
-void ikine();
-void hipikine();
-void kneeIkine();
-void ankleIkine();
 
 tf2::Quaternion rotAdd(tf2::Quaternion q1a, tf2::Quaternion q2a) {
   geometry_msgs::Quaternion q1 = quatConversion(q1a);
@@ -275,4 +269,12 @@ bool getRosParams(ros::NodeHandle nh) {
   paramsExist &= nh.getParam("system/IMUID2", systemSettings.IMUID2);
 
   return paramsExist;
+}
+
+double deg2rad(double ang) {
+  return (ang * M_PI / 180);
+}
+
+double rad2deg(double ang) {
+  return (ang * 180 / M_PI);
 }

@@ -1,0 +1,12 @@
+<launch>
+  <!--<rosparam command="load" file="$(find alex_bringup)/config/alex_params.yaml" />-->
+
+
+  <include file="$(find alex_bringup)/launch/MPU6050_Teensy.launch">
+  	<arg name="_port" value="/dev/ttyACM1"/>
+  </include>
+  
+  <include file="$(find alex_bringup)/launch/CAN_Teensy.launch">
+  	<arg name="_port" value="/dev/ttyACM0"/>
+  </include>
+</launch>

@@ -1,0 +1,6 @@
+<launch>
+  <!--<rosparam command="load" file="$(find alex_bringup)/config/alex_params.yaml" />-->
+
+  <arg name="_port" default="/dev/ttyACM0"/>
+  <node name="MPU6050_serial_node" pkg="rosserial_arduino" type="serial_node.py" args="$(arg _port)"/>
+</launch>

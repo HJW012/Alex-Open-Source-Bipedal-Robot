@@ -71,7 +71,7 @@ find_package(urdfdom_headers REQUIRED)
 add_service_files(
    FILES
    alex_fkine.srv
-   alex_ikine.srv
+   #alex_ikine.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -120,6 +120,7 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
  INCLUDE_DIRS include
+ LIBRARIES alex_kinematics
  CATKIN_DEPENDS roscpp std_msgs geometry_msgs
  DEPENDS system_lib
 )
@@ -131,14 +132,14 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+ include
   ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/alex_kinematics.cpp
-# )
+add_library(${PROJECT_NAME}
+   src/alex_fkine_node.cpp
+ )
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries

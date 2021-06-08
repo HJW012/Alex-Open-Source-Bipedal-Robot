@@ -57,8 +57,6 @@
   <build_depend>tf</build_depend>
   <build_depend>tf2_kdl</build_depend>
   <build_depend>tf2_ros</build_depend>
-  <build_depend>alex_kinematics</build_depend>
-  <build_depend>alex_global</build_depend>
   <build_export_depend>kdl_parser</build_export_depend>
   <build_export_depend>rosconsole</build_export_depend>
   <build_export_depend>roscpp</build_export_depend>
@@ -67,8 +65,6 @@
   <build_export_depend>tf</build_export_depend>
   <build_export_depend>tf2_kdl</build_export_depend>
   <build_export_depend>tf2_ros</build_export_depend>
-  <build_export_depend>alex_kinematics</build_export_depend>
-  <build_export_depend>alex_global</build_export_depend>
   <exec_depend>kdl_parser</exec_depend>
   <exec_depend>rosconsole</exec_depend>
   <exec_depend>roscpp</exec_depend>
@@ -77,8 +73,6 @@
   <exec_depend>tf</exec_depend>
   <exec_depend>tf2_kdl</exec_depend>
   <exec_depend>tf2_ros</exec_depend>
-  <exec_depend>alex_kinematics</exec_depend>
-  <exec_depend>alex_global</exec_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

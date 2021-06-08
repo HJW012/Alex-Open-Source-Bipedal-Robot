@@ -40,7 +40,7 @@ legs: {
                  # All lengths/offsets are in reference to left leg - hip must be mirrored for right leg
                  # Offsets axes are global axes ie offset_x is an offset in the base_link x axis, not the specific tf x axis
 
-    limbLengths: {
+    limbLengthsSSS: {
                     # Base link to coronal hip
                     l_base_to_sybolic_hip_yz: 0.101366, #Probably wont use
                     o_base_to_symbolic_hip_y: 0.084011,
@@ -76,7 +76,41 @@ legs: {
                     l_ankle_linear_actuator_a: 0.1493,
                     l_ankle_linear_actuator_b: 0.155795,
                     l_linear_actuator_b_to_shin_b: 0.055
-                  }
+                  },
+      hipLengths: {
+                  L1: 0.05996,
+                  L2: 0.0338,
+                  L3: 0.046803,
+                  L4: 0.043656,
+                  L5: 0.067801,
+                  L6: 0.068139,
+                  L7: 0.059961
+                  },
+      hipSigma: {
+                S0: 149.22,
+                S1: 134.896,
+                S2: 75.884,
+                S3: 109.314,
+                S4: 149.22,
+                S5: 75.425,
+                S6: 28.691,
+                S7: 104.574,
+                S8: 75.884
+                },
+      lowerLegLengths_Actual: { #Actual Lengths
+                        L1: 0.1,
+                        L2: 0.31,
+                        L3: 0.315,
+                        L4: 0.105,
+                        L5: 0.17
+                        },
+      lowerLegLengths_CAD: { #Actual Lengths
+                        L1: 0.1,
+                        L2: 0.296102,
+                        L3: 0.3206,
+                        L4: 0.07,
+                        L5: 0.205
+                        }
 }
 
 comms: {
@@ -89,15 +123,27 @@ comms: {
         }
 }
 
+AK80-9: {
+  P_MIN: -12.5,
+  P_MAX: 12.5,
+  V_MIN: -45.0,
+  V_MAX: 45.0,
+  KP_MIN: 0.0,
+  KP_MAX: 500.0,
+  KD_MIN: 0.0,
+  KD_MAX: 5.0,
+  T_MIN: -18.0,
+  T_MAX: 18.0
+  }
+
 system: { UseMPU6050: true,
           UseORIENTUS: false,
-          AverageIMU: false,
-          IMUID1: 1,
-          IMUID2: 2,
+          port: "/dev/ttyACM0",
           UseRVIZ: true,
           UseFKINEGUI: true,
           UseIKINEGUI: false,
-          PublishFrequency: 30
+          PublishFrequency: 30,
+          UseCADLengths: false
          }
 
 tests: { HopTestEnabled: false,

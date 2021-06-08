@@ -1,0 +1,273 @@
+<?xml version="1.0"?>
+<robot name="ALEX" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- HIP MECHANISM -->
+  <xacro:property name="hip_l_0" value="0.041642" />
+  <xacro:property name="hip_o_0_y" value="0.032497" />
+  <xacro:property name="hip_o_0_z" value="-0.026038" />
+  <xacro:property name="hip_l_1" value="0.05996" />
+  <xacro:property name="hip_l_2" value="0.0338" />
+  <xacro:property name="hip_l_3" value="0.046803" />
+  <xacro:property name="hip_l_4" value="0.043656" />
+  <xacro:property name="hip_l_5" value="0.067801" />
+  <xacro:property name="hip_l_6" value="0.068139" />
+  <xacro:property name="hip_l_7" value="0.059561" />
+
+  <xacro:property name="hip_sigma_00" value="$141.297 * pi / 180}" />
+  <xacro:property name="hip_sigma_0" value="${149.22 * pi / 180}" />
+  <xacro:property name="hip_sigma_1" value="${134.896 * pi / 180}" />
+  <xacro:property name="hip_sigma_2" value="${75.884 * pi / 180}" />
+  <xacro:property name="hip_sigma_3" value="${109.314 * pi / 180}" />
+  <xacro:property name="hip_sigma_4" value="${149.22 * pi / 180}" />
+  <xacro:property name="hip_sigma_5" value="${75.425 * pi / 180}" />
+  <xacro:property name="hip_sigma_6" value="${28.691 * pi / 180}" />
+  <xacro:property name="hip_sigma_7" value="${104.574 * pi / 180}" />
+  <xacro:property name="hip_sigma_8" value="${75.884 * pi / 180}" />
+
+  <!-- MAIN MECHANISM -->
+  <!-- CAD Lengths -->
+  <!--<xacro:property name="main_l_1" value="0.100" />
+  <xacro:property name="main_l_2" value="0.296102" />
+  <xacro:property name="main_l_3" value="0.3206" />
+  <xacro:property name="main_l_4" value="0.070" />
+  <xacro:property name="main_l_5" value="0.205" />-->
+
+  <!-- Actual Lengths -->
+  <xacro:property name="main_l_1" value="0.100" />
+  <xacro:property name="main_l_2" value="0.310" />
+  <xacro:property name="main_l_3" value="0.315" />
+  <xacro:property name="main_l_4" value="0.105" />
+  <xacro:property name="main_l_5" value="0.170" />
+
+  <material name="red">
+    <color rgba="1 0 0 1"/>
+  </material>
+
+  <material name="green">
+    <color rgba="0 1 0 1"/>
+  </material>
+
+  <material name="blue">
+    <color rgba="0 0 1 1"/>
+  </material>
+
+  <material name="yellow">
+    <color rgba="1 1 0 1"/>
+  </material>
+
+  <material name="silver">
+    <color rgba="0.73 0.73 0.73 1"/>
+  </material>
+
+  <material name="black">
+    <color rgba="0 0 0 1"/>
+  </material>
+
+  <material name="white">
+    <color rgba="1 1 1 1"/>
+  </material>
+
+  <xacro:macro name="hip" params="prefix reflect mechanism">
+    <!-- Hip Mechanism -->
+    <!-- chain 1 -->
+    <link name="${prefix}_base_link_to_${mechanism}_p00"/>
+    <joint name="${prefix}_base_link_to_${mechanism}_p00_joint" type="continuous">
+      <parent link="base_link"/>
+      <child link="${prefix}_base_link_to_${mechanism}_p00"/>
+      <axis rpy="0 0 0" xyz="0 0 1"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </joint>
+
+    <link name="${prefix}_${mechanism}_p00_to_${mechanism}_p0">
+      <visual>
+        <geometry>
+          <cylinder length="${hip_l_1}" radius="0.003"/>
+        </geometry>
+        <origin rpy="0 ${pi/2} 0" xyz="${hip_l_1/2} 0 0"/>
+      </visual>
+    </link>
+    <joint name="${prefix}_${mechanism}_p00_to_${mechanism}_p0_joint" type="continuous">
+      <parent link="${prefix}_base_link_to_${mechanism}_p00"/>
+      <child link="${prefix}_${mechanism}_p00_to_${mechanism}_p0"/>
+      <axis rpy="0 0 0" xyz="0 0 1"/>
+      <origin rpy="${pi/2} ${pi - hip_sigma_0} ${reflect * pi/2}" xyz="0 ${reflect * hip_o_0_y} ${hip_o_0_z}"/>
+    </joint>
+
+    <link name="${prefix}_${mechanism}_p0_to_${mechanism}_p1">
+      <visual>
+        <geometry>
+          <cylinder length="${hip_l_2}" radius="0.003"/>
+        </geometry>
+        <origin rpy="0 ${pi/2} 0" xyz="${hip_l_2/2} 0 0"/>
+      </visual>
+    </link>
+    <joint name="${prefix}_${mechanism}_p0_to_${mechanism}_p1_joint" type="continuous">
+      <parent link="${prefix}_${mechanism}_p00_to_${mechanism}_p0"/>
+      <child link="${prefix}_${mechanism}_p0_to_${mechanism}_p1"/>
+      <axis rpy="0 0 0" xyz="0 0 1"/>
+      <origin rpy="0 0 ${hip_sigma_1 + hip_sigma_2 - pi} " xyz="${hip_l_1} 0 0"/>
+    </joint>
+
+    <link name="${prefix}_${mechanism}_p1_to_${mechanism}_p2">
+      <visual>
+        <geometry>
+          <cylinder length="${hip_l_3}" radius="0.003"/>
+        </geometry>
+        <origin rpy="0 ${pi/2} 0" xyz="${hip_l_3/2} 0 0"/>
+      </visual>
+    </link>
+    <joint name="${prefix}_${mechanism}_p1_to_${mechanism}_p2_joint" type="continuous">
+      <parent link="${prefix}_${mechanism}_p0_to_${mechanism}_p1"/>
+      <child link="${prefix}_${mechanism}_p1_to_${mechanism}_p2"/>
+      <axis rpy="0 0 0" xyz="0 0 1"/>
+      <origin rpy="0 0 ${hip_sigma_5 + hip_sigma_7 - pi} " xyz="${hip_l_2} 0 0"/>
+    </joint>
+
+    <link name="${prefix}_${mechanism}_p2_to_${mechanism}_p3">
+      <visual>
+        <geometry>
+          <cylinder length="${hip_l_4}" radius="0.003"/>
+        </geometry>
+        <origin rpy="0 ${pi/2} 0" xyz="${hip_l_4/2} 0 0"/>
+      </visual>
+    </link>
+    <joint name="${prefix}_${mechanism}_p2_to_${mechanism}_p3_joint" type="continuous">
+      <parent link="${prefix}_${mechanism}_p1_to_${mechanism}_p2"/>
+      <child link="${prefix}_${mechanism}_p2_to_${mechanism}_p3"/>
+      <axis rpy="0 0 0" xyz="0 0 1"/>
+      <origin rpy="0 0 ${-pi/2} " xyz="${hip_l_3} 0 0"/>
+    </joint>
+
+    <link name="${prefix}_${mechanism}_p3_to_${mechanism}_p4">
+      <visual>
+        <geometry>
+          <cylinder length="${hip_l_5}" radius="0.003"/>
+        </geometry>
+        <origin rpy="0 ${pi/2} 0" xyz="${hip_l_5/2} 0 0"/>
+      </visual>
+    </link>
+    <joint name="${prefix}_${mechanism}_p3_to_${mechanism}_p4_joint" type="continuous">
+      <parent link="${prefix}_${mechanism}_p2_to_${mechanism}_p3"/>
+      <child link="${prefix}_${mechanism}_p3_to_${mechanism}_p4"/>
+      <axis rpy="0 0 0" xyz="0 0 1"/>
+      <origin rpy="0 0 ${-(pi - 109.314 * pi / 180)} " xyz="${hip_l_4} 0 0"/> <!-- Value taken from CAD just for fun - it is calculated in alex state publisher -->
+    </joint>
+
+    <!-- chain 2 -->
+    <link name="${prefix}_${mechanism}_p0_to_${mechanism}_p4">
+      <visual>
+        <geometry>
+          <cylinder length="${hip_l_6}" radius="0.003"/>
+        </geometry>
+        <origin rpy="0 ${pi/2} 0" xyz="${hip_l_6/2} 0 0"/>
+      </visual>
+    </link>
+    <joint name="${prefix}_${mechanism}_p0_to_${mechanism}_p4_joint" type="continuous">
+      <parent link="${prefix}_${mechanism}_p00_to_${mechanism}_p0"/>
+      <child link="${prefix}_${mechanism}_p0_to_${mechanism}_p4"/>
+      <axis rpy="0 0 0" xyz="0 0 1"/>
+      <origin rpy="0 0 ${-(pi - hip_sigma_1)}" xyz="${hip_l_1} 0 0"/>
+    </joint>
+
+    <link name="${prefix}_${mechanism}_p4_to_${mechanism}_p5">
+      <visual>
+        <geometry>
+          <cylinder length="${hip_l_7}" radius="0.003"/>
+        </geometry>
+        <origin rpy="0 ${pi/2} 0" xyz="${hip_l_7/2} 0 0"/>
+      </visual>
+    </link>
+    <joint name="${prefix}_${mechanism}_p4_to_${mechanism}_p5_joint" type="continuous">
+      <parent link="${prefix}_${mechanism}_p0_to_${mechanism}_p4"/>
+      <child link="${prefix}_${mechanism}_p4_to_${mechanism}_p5"/>
+      <axis rpy="0 0 0" xyz="0 0 1"/>
+      <origin rpy="0 0 ${-pi/10}" xyz="${hip_l_5} 0 0"/> <!-- -pi/10 chosen at random to make standard URDF look close to perfect -->
+    </joint>
+  </xacro:macro>
+
+  <xacro:macro name="lowerLeg" params="prefix reflect mechanism">
+    <!-- chain 1 -->
+    <link name="${prefix}_${mechanism}_p0_to_${mechanism}_p1">
+      <visual>
+        <geometry>
+          <cylinder length="${main_l_1}" radius="0.003"/>
+        </geometry>
+        <origin rpy="0 ${pi/2} 0" xyz="${main_l_1/2} 0 0"/>
+      </visual>
+    </link>
+    <joint name="${prefix}_${mechanism}_p0_to_${mechanism}_p1_joint" type="continuous">
+      <parent link="${prefix}_hip_p4_to_hip_p5"/>
+      <child link="${prefix}_${mechanism}_p0_to_${mechanism}_p1"/>
+      <axis rpy="0 0 0" xyz="0 0 1"/>
+      <origin rpy="${reflect * pi/2} ${-reflect * pi/4} 0" xyz="${hip_l_7} 0 0"/>
+    </joint>
+
+    <link name="${prefix}_${mechanism}_p1_to_${mechanism}_p3">
+      <visual>
+        <geometry>
+          <cylinder length="${main_l_3}" radius="0.003"/>
+        </geometry>
+        <origin rpy="0 ${pi/2} 0" xyz="${main_l_3/2} 0 0"/>
+      </visual>
+    </link>
+    <joint name="${prefix}_${mechanism}_p1_to_${mechanism}_p3_joint" type="continuous">
+      <parent link="${prefix}_${mechanism}_p0_to_${mechanism}_p1"/>
+      <child link="${prefix}_${mechanism}_p1_to_${mechanism}_p3"/>
+      <axis rpy="0 0 0" xyz="0 0 1"/>
+      <origin rpy="0 0 ${-pi/2}" xyz="${main_l_1} 0 0"/>
+    </joint>
+
+    <!-- chain 2 -->
+    <link name="${prefix}_${mechanism}_p0_to_${mechanism}_p2">
+      <visual>
+        <geometry>
+          <cylinder length="${main_l_2}" radius="0.003"/>
+        </geometry>
+        <origin rpy="0 ${-pi/2} 0" xyz="${main_l_2/2} 0 0"/>
+      </visual>
+    </link>
+    <joint name="${prefix}_${mechanism}_p0_to_${mechanism}_p2_joint" type="continuous">
+      <parent link="${prefix}_hip_p4_to_hip_p5"/>
+      <child link="${prefix}_${mechanism}_p0_to_${mechanism}_p2"/>
+      <axis rpy="0 0 0" xyz="0 0 1"/>
+      <origin rpy="${reflect * pi/2} ${reflect * pi/4} 0" xyz="${hip_l_7} 0 0"/>
+    </joint>
+
+    <link name="${prefix}_${mechanism}_p2_to_${mechanism}_p4">
+      <visual>
+        <geometry>
+          <cylinder length="${main_l_4 + main_l_5}" radius="0.003"/>
+        </geometry>
+        <origin rpy="0 ${pi/2} 0" xyz="${(main_l_4 + main_l_5)/2} 0 0"/>
+      </visual>
+    </link>
+    <joint name="${prefix}_${mechanism}_p2_to_${mechanism}_p4_joint" type="continuous">
+      <parent link="${prefix}_${mechanism}_p0_to_${mechanism}_p2"/>
+      <child link="${prefix}_${mechanism}_p2_to_${mechanism}_p4"/>
+      <axis rpy="0 0 0" xyz="0 0 1"/>
+      <origin rpy="0 0 ${pi/2}" xyz="${main_l_2} 0 0"/>
+    </joint>
+
+  <link name="${prefix}_${mechanism}_p4_to_foot"/>
+  <joint name="${prefix}_${mechanism}_p4_to_foot_joint" type="continuous">
+    <parent link="${prefix}_${mechanism}_p2_to_${mechanism}_p4"/>
+    <child link="${prefix}_${mechanism}_p4_to_foot"/>
+    <axis rpy="0 0 0" xyz="0 0 1"/>
+    <origin rpy="0 0 0" xyz="${main_l_4 + main_l_5} 0 0"/>
+  </joint>
+</xacro:macro>
+
+  <xacro:macro name="leg" params="prefix reflect">
+    <xacro:hip prefix="${prefix}" reflect="${reflect}" mechanism="hip" />
+    <xacro:lowerLeg prefix="${prefix}" reflect="${reflect}" mechanism="main" />
+  </xacro:macro>
+
+  <link name="base_link"/>
+  <xacro:leg prefix="left" reflect="1" />
+  <xacro:leg prefix="right" reflect="-1" />
+
+
+
+
+
+</robot>

@@ -117,12 +117,7 @@ double l_base_to_sybolic_hip_yz;
 #define DEVICE_NAME "/dev/ttyUSB0"
 
 // Kinematic Functions
-void fkine();
-void legFkine();
-void ikine();
-void hipikine();
-void kneeIkine();
-void ankleIkine();
+
 tf2::Quaternion rotAdd(tf2::Quaternion, tf2::Quaternion);
 geometry_msgs::Quaternion rotAdd(geometry_msgs::Quaternion, geometry_msgs::Quaternion);
 geometry_msgs::TransformStamped getOffsetTF(geometry_msgs::TransformStamped, geometry_msgs::TransformStamped, std::map<std::string, geometry_msgs::TransformStamped>);
@@ -300,6 +295,8 @@ void getRPY(tf2::Quaternion, double&, double&, double&);
 void getRPY(geometry_msgs::Quaternion, double&, double&, double&);
 bool getRosParams(ros::NodeHandle);
 void quadraticFormula(double, double, double, std::vector<double>&);
+double deg2rad(double);
+double rad2deg(double);
 
 // CAN Functions
 float constrain(float, float, float);

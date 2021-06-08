@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   alex_state_publisher
   socketcan_bridge
   robot_state_publisher
+  rosserial_python
 )
 
 ## System dependencies are found with CMake's conventions

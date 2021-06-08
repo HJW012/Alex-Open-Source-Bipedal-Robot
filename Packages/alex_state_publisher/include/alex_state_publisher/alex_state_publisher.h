@@ -24,13 +24,13 @@
 #include <tf2/LinearMath/Matrix3x3.h>
 #include <geometry_msgs/Quaternion.h>
 #include "alex_kinematics/alex_fkine.h"
-#include "alex_kinematics/alex_ikine.h"
+// #include "alex_kinematics/alex_ikine.h"
 #include "alex_global/global_definitions.h"
-
-ros::ServiceClient fkineClient;
-alex_kinematics::alex_fkine fkineSrv;
-ros::ServiceClient ikineClient;
-alex_kinematics::alex_ikine ikineSrv;
+//
+ ros::ServiceClient fkineClient;
+ alex_kinematics::alex_fkine fkineSrv;
+// ros::ServiceClient ikineClient;
+// alex_kinematics::alex_ikine ikineSrv;
 
 namespace alex_state_publisher {
 
@@ -78,6 +78,9 @@ public:
   //bool fkine(std::map<std::string, geometry_msgs::TransformStamped>&);
   bool legFkine(std::string, std::map<std::string, geometry_msgs::TransformStamped>&);
   bool fkine(std::vector<geometry_msgs::TransformStamped>&);
+  bool hipFkine(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>& transforms);
+  bool mainFkine(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>& transforms);
+  bool calcFootTF(std::string, std::map<std::string, geometry_msgs::TransformStamped>&);
 
 
 

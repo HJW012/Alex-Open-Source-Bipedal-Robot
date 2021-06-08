@@ -104,6 +104,8 @@ void AlexStatePublisher::publishTransforms(const std::map<std::string, double>& 
   std::map<int, geometry_msgs::TransformStamped> pointMap;
   std::map<std::string, geometry_msgs::TransformStamped> transforms;
   std::vector<geometry_msgs::TransformStamped> transformVector;
+  std::vector<geometry_msgs::TransformStamped> transformsIn;
+  std::vector<geometry_msgs::TransformStamped> transformsOut;
   int pointIndex = 0;
   int pointCount = 0;
   for (std::map<std::string, double>::const_iterator jnt = joint_positions.begin(); jnt != joint_positions.end(); jnt++) {
@@ -116,8 +118,10 @@ void AlexStatePublisher::publishTransforms(const std::map<std::string, double>& 
 
 
       // pointMap[pointIndex] = tf_transform;
-      // transforms[tf_transform.child_frame_id] = tf_transform;
-      transformVector.push_back(tf_transform);
+
+      transforms[tf_transform.child_frame_id] = tf_transform;
+      transformsIn.push_back(tf_transform);
+
       // pointIndex++;
       // pointCount = pointIndex;
       // tf_transform.transform.translation.x = 1;
@@ -130,11 +134,20 @@ void AlexStatePublisher::publishTransforms(const std::map<std::string, double>& 
       ROS_WARN_THROTTLE(10, "Joint state with name: \"%s\" was received but not found in URDF", jnt->first.c_str());
     }
   }
+  // ros::param::set("/tessssssssst", transformsIn);
+  fkineSrv.request.transforms = transformsIn;
+  fkineClient.call(fkineSrv);
+  transformsOut = fkineSrv.response.transforms;
 
-  fkine(transformVector);
-  // for (std::map<std::string, geometry_msgs::TransformStamped>::iterator i = transforms.begin(); i != transforms.end(); i++) {
-  //   tf_transforms.push_back(i->second);
-  // }
+  //legFkine("left", transforms);
+  //legFkine("right", transforms);
+  /*for (std::map<std::string, geometry_msgs::TransformStamped>::iterator i = transforms.begin(); i != transforms.end(); i++) {
+     transformVector.push_back(i->second);
+   }*/
+   for (auto x : transformsOut) {
+     transformVector.push_back(x);
+   }
+
   tf_broadcaster_.sendTransform(transformVector);
 
 
@@ -234,6 +247,116 @@ double AlexStatePublisher::sideCosineRule(double b, double c, double A) {
   return a;
 }
 
+// Hip mechanism fkine
+bool AlexStatePublisher::hipFkine(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>& transforms) {
+  double hipLengths[7] = {0.05996, 0.0338, 0.046803, 0.043656, 0.067801, 0.068139, 0.059561};
+  double hipSigma[9] = {deg2rad(149.22), deg2rad(134.896), deg2rad(75.884), deg2rad(109.314), deg2rad(149.22), deg2rad(75.425), deg2rad(28.691), deg2rad(104.574), deg2rad(75.884)};
+
+  int side;
+  if (prefix == "left") {
+    side = -1;
+  } else if (prefix == "right") {
+    side = 1;
+  }
+
+  double roll, pitch, yaw;
+  getRPY(transforms[prefix + "_hip_p1_to_hip_p2"].transform.rotation, roll, pitch, yaw);
+
+  double lr0, lr1;
+  if (!Relative_Distance_In_Tree(transforms, prefix + "_hip_p1_to_hip_p2", prefix + "_hip_p4_to_hip_p5", "base_link", lr0)) {
+    return false;
+  }
+
+  double gamma1 = hipSigma[7] + yaw;
+  if (!Relative_Distance_In_Tree(transforms, prefix + "_hip_p2_to_hip_p3", prefix + "_hip_p4_to_hip_p5", "base_link", lr1)) {
+    return false;
+  }
+  double alpha1 = angleCosineRule(lr0, hipLengths[2], lr1);
+  double alpha2 = angleCosineRule(hipLengths[4], hipLengths[3], lr1);
+  double alpha = alpha1 + alpha2;
+
+  double beta1 = angleCosineRule(hipLengths[2], lr1, lr0);
+  double beta2 = angleCosineRule(hipLengths[3], hipLengths[4], lr1);
+  double beta = beta1 + beta2;
+
+  getRPY(transforms[prefix + "_hip_p2_to_hip_p3"].transform.rotation, roll, pitch, yaw);
+  yaw = -(M_PI - alpha);
+  transforms[prefix + "_hip_p2_to_hip_p3"].transform.rotation = setRPY(roll, pitch, yaw);
+
+  double gamma2 = angleCosineRule(lr1, hipLengths[3], hipLengths[4]);
+  getRPY(transforms[prefix + "_hip_p3_to_hip_p4"].transform.rotation, roll, pitch, yaw);
+  yaw = -(M_PI - gamma2);
+  transforms[prefix + "_hip_p3_to_hip_p4"].transform.rotation = setRPY(roll, pitch, yaw);
+
+  double swayAngle = 2 * M_PI - (hipSigma[3] + hipSigma[6] + hipSigma[8] + beta);
+  getRPY(transforms[prefix + "_hip_p4_to_hip_p5"].transform.rotation, roll, pitch, yaw);
+  yaw = ((swayAngle + hipSigma[8]) - M_PI);
+  transforms[prefix + "_hip_p4_to_hip_p5"].transform.rotation = setRPY(roll, pitch, yaw);
+
+  return true;
+}
+
+// Main mechanism fkine
+bool AlexStatePublisher::mainFkine(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>& transforms) {
+  //double mainLengths[5] = {0.100, 0.296102, 0.3206, 0.070, 0.205}; // CAD lengths
+  double mainLengths[5] = {0.100, 0.310, 0.315, 0.105, 0.170}; // Actual lengths
+
+  int side;
+  if (prefix == "left") {
+    side = -1;
+  } else if (prefix == "right") {
+    side = 1;
+  }
+
+  double lr1;
+  if (!Relative_Distance_In_Tree(transforms, prefix + "_main_p2_to_main_p4", prefix + "_main_p1_to_main_p3", "base_link", lr1)) {
+    return false;
+  }
+
+  double alpha1 = angleCosineRule(mainLengths[0], mainLengths[1], lr1);
+  double alpha2 = angleCosineRule(mainLengths[2], mainLengths[3], lr1);
+  double alpha = alpha1 + alpha2;
+
+  double gamma1 = angleCosineRule(lr1, mainLengths[1], mainLengths[0]);
+  double gamma2 = angleCosineRule(lr1, mainLengths[2], mainLengths[3]);
+
+  double beta1 = angleCosineRule(mainLengths[1], mainLengths[0], lr1);
+  double beta2 = angleCosineRule(mainLengths[3], mainLengths[2], lr1);
+  double beta = beta1 + beta2;
+
+  double roll, pitch, yaw;
+  getRPY(transforms[prefix + "_main_p2_to_main_p4"].transform.rotation, roll, pitch, yaw);
+  yaw = (M_PI - alpha);
+  transforms[prefix + "_main_p2_to_main_p4"].transform.rotation = setRPY(roll, pitch, yaw);
+
+  getRPY(transforms[prefix + "_main_p1_to_main_p3"].transform.rotation, roll, pitch, yaw);
+  yaw = -(M_PI - beta);
+  transforms[prefix + "_main_p1_to_main_p3"].transform.rotation = setRPY(roll, pitch, yaw);
+
+  return true;
+}
+
+bool AlexStatePublisher::calcFootTF(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>& transforms) {
+  // Calculate TF of foot relative to base_link
+  geometry_msgs::TransformStamped footTF;
+  if (!Relative_TF_In_Chain(transforms, prefix + "_main_p4_to_foot", "base_link", "base_link", footTF)) {
+    return false;
+  }
+
+  return true;
+}
+
+bool AlexStatePublisher::legFkine(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>& transforms) {
+  std::map<std::string, geometry_msgs::TransformStamped> tempTransforms = transforms;
+
+  if (!hipFkine(prefix, transforms) || !mainFkine(prefix, transforms) || !calcFootTF(prefix, transforms)) {
+    transforms = tempTransforms;
+    return false;
+  }
+
+  return true;
+}
+/*
 bool AlexStatePublisher::legFkine(std::string prefix, std::map<std::string, geometry_msgs::TransformStamped>& transforms){
   // 1.0 LEFT LEG
   // 1.1 Knee/Shin Mechanism
@@ -320,16 +443,17 @@ bool AlexStatePublisher::legFkine(std::string prefix, std::map<std::string, geom
 
   return false;
 }
-
+*/
 //bool AlexStatePublisher::fkine(std::map<std::string, geometry_msgs::TransformStamped>& transforms) { //ALL OF THIS NEEDS TO BE OPTIMISED
 //  legFkine("left", transforms);
 //  legFkine("right", transforms);
 //}
 
 bool AlexStatePublisher::fkine(std::vector<geometry_msgs::TransformStamped>& transforms) { //ALL OF THIS NEEDS TO BE OPTIMISED
-  fkineSrv.request.transforms = transforms;
-  fkineClient.call(fkineSrv);
-  transforms = fkineSrv.response.transforms;
+  //fkineSrv.request.transforms = transforms;
+  //fkineClient.call(fkineSrv);
+  //transforms = fkineSrv.response.transforms;
+
 
   return true;
 }
