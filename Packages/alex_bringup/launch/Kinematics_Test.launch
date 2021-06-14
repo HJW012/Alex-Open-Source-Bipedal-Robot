@@ -2,15 +2,15 @@
   <rosparam command="load" file="$(find alex_bringup)/config/alex_params.yaml" />
   <param name="use_tf_static_" value="false"/>
   <param name="use_tf_static" value="false"/>
-  <arg name="isolated" default="false"/>
 
 
   <arg name="model" default="$(find alex_description)/urdf/FullBody_Mesh.urdf.xacro"/>
   <arg name="gui" default="true" />
   <arg name="rvizconfig" default="$(find alex_description)/rviz/urdf.rviz" />
-  <arg name="use_motor_feedback" default="false" />
+  <arg name="use_motor_feedback" default="true" />
   <param name="robot_description" command="$(find xacro)/xacro $(arg model)" />
 
+ <node name="alex_joint_state_publisher" pkg="alex_state_publisher" type="alex_joint_state_publisher_node"/>
  <group if="$(arg use_motor_feedback)">
  <node name="joint_state_publisher" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui">
    <rosparam param="source_list">["alex_current_joint_states"]</rosparam>

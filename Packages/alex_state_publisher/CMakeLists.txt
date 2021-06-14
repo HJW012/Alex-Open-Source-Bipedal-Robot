@@ -95,6 +95,7 @@ generate_messages(
   DEPENDENCIES
   std_msgs
   geometry_msgs
+  sensor_msgs
 )
 
 ################################################
@@ -175,7 +176,16 @@ add_library(alex_joint_state_listener src/alex_joint_state_listener.cpp)
 target_link_libraries(alex_joint_state_listener ${PROJECT_NAME}_solver ${orocos_kdl_LIBRARIES})
 
 add_executable(${PROJECT_NAME} src/alex_state_publisher_node.cpp)
+add_executable(alex_joint_state_publisher_node src/alex_joint_state_publisher_node.cpp)
+
+target_link_libraries(alex_joint_state_publisher_node
+  ${catkin_LIBRARIES}
+)
+
 target_link_libraries(${PROJECT_NAME} ${PROJECT_NAME}_solver alex_joint_state_listener ${orocos_kdl_LIBRARIES})
+
+
+add_dependencies(alex_joint_state_publisher_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 #############
 ## Install ##

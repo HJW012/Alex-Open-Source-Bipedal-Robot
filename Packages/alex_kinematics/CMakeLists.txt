@@ -71,7 +71,7 @@ find_package(urdfdom_headers REQUIRED)
 add_service_files(
    FILES
    alex_fkine.srv
-   #alex_ikine.srv
+   alex_ikine.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -137,9 +137,9 @@ include_directories(
 )
 
 ## Declare a C++ library
-add_library(${PROJECT_NAME}
-   src/alex_fkine_node.cpp
- )
+#add_library(${PROJECT_NAME}
+#   src/alex_fkine_node.cpp
+# )
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -169,8 +169,8 @@ add_library(${PROJECT_NAME}
 add_executable(alex_fkine_node src/alex_fkine_node.cpp)
 add_executable(alex_ikine_node src/alex_ikine_node.cpp)
 
-add_dependencies(alex_fkine_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(alex_ikine_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+
 
 target_link_libraries(alex_fkine_node
   ${catkin_LIBRARIES}
@@ -178,6 +178,10 @@ target_link_libraries(alex_fkine_node
 target_link_libraries(alex_ikine_node
   ${catkin_LIBRARIES}
 )
+
+add_dependencies(alex_fkine_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(alex_ikine_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
 
 #############
 ## Install ##
