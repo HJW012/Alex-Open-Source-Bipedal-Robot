@@ -1,5 +1,6 @@
 # Alex-Open-Source-Bipedal-Robot
-"There is no too short, too tall, too heavy, too warm, too wet, or too humid. There is just one excuse: too weak."
+Mechanical Part Files:
+https://drive.google.com/drive/u/1/folders/15TKykmXOrBK5iikTmNfzsXckOwq47u8H
 
 Installation Instructions
 1. Clone the repository including submodules  

@@ -116,6 +116,18 @@ bool GetRelativeTF(map<string, TransformStamped> transformMap, TransformStamped 
     return chainFound;
 }
 
+Quaternion rotAdd(Quaternion q1, Quaternion q2) {
+    Quaternion q3;
+    q3.w = q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z;
+    q3.x = q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y;
+    q3.y = q1.w * q2.y + q1.y * q2.w + q1.z * q2.x - q1.x * q2.z;
+    q3.z = q1.w * q2.z + q1.z * q2.w + q1.x * q2.y - q1.y * q2.x;
+
+    return q3;
+}
+
+
+
 int main()
 {
     TransformStamped TF1, TF2, TF3, TF4, TF5;
@@ -163,9 +175,25 @@ int main()
 
 
     Quaternion test = setRPY(M_PI/4, M_PI/4, M_PI/4);
-    cout << "X: " << test.x << endl;
-    cout << "Y: " << test.y << endl;
-    cout << "Z: " << test.z << endl;
-    cout << "W: " << test.w << endl;
+
+
+    Quaternion q1;
+    q1.w = -0.877;
+    q1.x = 0.118;
+    q1.y = -0.441;
+    q1.z = 0.147;
+    Quaternion q2;
+    q2.w = 0.893;
+    q2.x = 0.11;
+    q2.y = -0.413;
+    q2.z = 0.138;
+
+    Quaternion q3 = rotAdd(q1, q2);
+    q3 = rotAdd(q3, q2);
+    cout << "W: " << q3.w << endl;
+    cout << "X: " << q3.x << endl;
+    cout << "Y: " << q3.y << endl;
+    cout << "Z: " << q3.z << endl;
+
     return 0;
 }
